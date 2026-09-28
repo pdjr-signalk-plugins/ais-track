@@ -4,38 +4,50 @@
 [Signal K](https://www.signalk.org/)
 plugin which creates a track from AIS position reports received over
 a UDP connection.
-The plugin was written to maintain daily cruising tracks from date
-pushed by thedata on *known vessels* to one or more user
-specified UDP *endpoints*.
-Known vessels in this context means the host ship and all AIS targets
-from which data is currently being received.
-An endpoint is any remote service capable of receiving AIS data over
-UDP, typically a consolidation service like
-[MarineTraffic](https://www.marinetraffic.com).
-Create a track from AIS reports 
-# ais-reporter
 
-**ais-reporter** is a
-[Signal K](https://www.signalk.org/)
-plugin which pushes AIS data on *known vessels* to one or more user
-specified UDP *endpoints*.
-Known vessels in this context means the host ship and all AIS targets
-from which data is currently being received.
-An endpoint is any remote service capable of receiving AIS data over
-UDP, typically a consolidation service like
-[MarineTraffic](https://www.marinetraffic.com).
+The plugin was written to automatically maintain daily cruising tracks
+for the host vessel from data pushed by
+[ais-reporter](https://github.com/pdjr-signalk-plugins/ais-reporter).
+Note that for this to work, the host vessel does not require AIS
+equipment (but, of course, does require GPS position data).
 
-The rates at which reports are issued for the host ship, AIS targets
-and UDP enpoints can be independently configured and can be dynamically
-adjusted in response to values on one or more arbitrary Signal K paths.
-Together these measures may be used to give fine control over the
-granularity of data reporting and resource consumption on the host
-vessel's Internet connection.
+The plugin will record tracks at an granularity determined by data
+presence, temporal period (day, week, month, etc.) or API trigger.
 
-AIS reports for the host vessel can be issued even if the ship has no
-AIS equipment: it is sufficient that the vessel's MMSI and position
-are available on their default Signal K paths (`mmsi` and
-`navigation.position`).
+## Working principle
+
+The plugin listens on a specified UDP port for incoming AIS position
+reports and concatenates the received positions into a Signal K track
+resource named `YYYYMMDD:hhmm` (which reflects the start time of the
+track).
+
+The current track can be stopped and a new one started in various
+ways described below.
+
+## Generating AIS position data
+
+AIS position reports can come from anywhere, but it is convenient to
+use the `ais-reporter` plugin as a data source by including an endpoint
+in its configuration which pushes data to `ais-track`.
+The following non-trivial endpoint is configured to only push AIS data
+when the host vessel's main engine is operating (as reported by
+`updateIntervalIndexPath`).
+See the `ais-reporter` documentation for more information.
+
+```json
+...
+{
+  "name": "ais-track",
+  "ipAddress": "127.0.0.1",
+  "port": 12346,
+  "positionReportInterval": 0,
+  "staticReportInterval": 0,
+  "myPositionReportInterval": [0,5],
+  "myStaticReportInterval": 0,
+  "updateIntervalIndexPath": "electrical.switches.bank.16.16.state"
+}
+...
+```
 
 ## Plugin configuration
 
@@ -51,19 +63,17 @@ a text editor is being used to directly edit the JSON configuration.
 ### A minimal configuration
 
 The plugin includes built-in defaults for most configuration properties
-so a minimal working configuration requires only an *endpoints* array
-containing at least one reporting endpoint specified in terms of its
-*ipAddress* and service *port* (with maybe an optional descriptive
-*name*).
+so a minimal working configuration requires a *listeners* array
+containing at least one listener endpoint specified in terms of its
+service *port* (with maybe an optional descriptive *name*).
 
 ```json
 {  
   "configuration": {  
-    "endpoints": [  
-      {  
-        "name": "Test",  
-        "ipAddress": "127.0.0.1",  
-        "port": 12345  
+    "listeners": [  
+      { 
+        "name": "Daily track",   
+        "port": 12346  
       }  
     ]  
   },  
@@ -71,7 +81,37 @@ containing at least one reporting endpoint specified in terms of its
 }
 ```
 
-This example will push AIS data to port 12345 on the Signal K host and
+This example will accept AIS position reports on port 12346 and append
+them to a track resource in the Signal K resources repository.
+
+### Creating multiple track resource files
+
+The simplest way of achieving this is to use an AIS data stream which
+stops when the existing track resource should be stopped and starts
+whwn a new track resource should be created.
+Tthe example `ais-reporter` configuration shown above generates pushes
+an AIS position report every five minutes has this behaviour).
+
+```json
+{  
+  "configuration": {  
+    "listeners": [  
+      { 
+        "name": "Daily track",   
+        "port": 12346,
+        "newTrackInterruptInterval": 11
+      }  
+    ]  
+  },  
+  "enabled": true  
+}
+```
+
+
+
+
+
+on the Signal K host and
 may be useful for checking and testing plugin operation.
 A simple way to monitor port 12345 on the host computer is to open a
 terminal window on the Signal K server and run the command
