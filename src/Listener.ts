@@ -36,8 +36,8 @@ export class Listener {
         this.positions = new Positions();
       }
       this.timestamp = Date.now();
-      var ais: AisDecodeOptions = new AisDecode('' + msg);
-      if (this.positions) this.positions.add(new Position(ais.lat || 0, ais.lon || 0));
+      //var ais: AisDecodeOptions = new AisDecode('' + msg);
+      //if (this.positions) this.positions.add(new Position(ais.lat || 0, ais.lon || 0));
     });
       
     /**

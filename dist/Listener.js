@@ -2,9 +2,7 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Listener = void 0;
 const dgram_1 = require("dgram");
-const ggencoder_1 = require("ggencoder");
 const Positions_1 = require("./Positions");
-const Position_1 = require("./Position");
 class Listener {
     constructor(options, app) {
         this.app = null;
@@ -30,9 +28,8 @@ class Listener {
                 this.positions = new Positions_1.Positions();
             }
             this.timestamp = Date.now();
-            var ais = new ggencoder_1.AisDecode('' + msg);
-            if (this.positions)
-                this.positions.add(new Position_1.Position(ais.lat || 0, ais.lon || 0));
+            //var ais: AisDecodeOptions = new AisDecode('' + msg);
+            //if (this.positions) this.positions.add(new Position(ais.lat || 0, ais.lon || 0));
         });
         /**
          *
