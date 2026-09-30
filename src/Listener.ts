@@ -5,6 +5,7 @@ import { Position } from './Position';
 
 export class Listener {
 
+  public app: any | null = null;
   public port: number;
   public resetInterval: number;
   public positionAccuracy: number;
@@ -14,15 +15,18 @@ export class Listener {
   public resourceName: string | null = null;
   public positions: Positions | null = null;
 
-  constructor(options: any[]) {
+  constructor(options: any[], app: any) {
     if (!options[0].port) throw new Error('missing \'port\' property');
 
+    if (app) this.app = app;
     this.port = options[0].port;
     this.resetInterval = getOption(options, 'resetInterval');
     this.positionAccuracy = getOption(options, 'positionAccuracy');
 
     this.udpSocket = createSocket('udp4');
     this.udpSocket.on('message', (msg: any, rinfo: any) => {
+      if (this.app) this.app.debug(`position report received`);
+
       if ((this.timestamp != 0) && ((this.timestamp + (this.resetInterval * 1000)) < Date.now())) {
         this.saveResource();
         this.timestamp = 0;

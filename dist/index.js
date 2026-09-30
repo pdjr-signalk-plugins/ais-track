@@ -118,7 +118,7 @@ module.exports = function (app) {
     function makePluginConfiguration(options, defaults) {
         app.debug(`makePluginConfiguration(${JSON.stringify(options)})...`);
         var retval = {
-            listeners: options.listeners.map((option) => new Listener_1.Listener([option, options, defaults]))
+            listeners: options.listeners.map((option) => new Listener_1.Listener([option, options, defaults], app))
         };
         return (retval);
     }

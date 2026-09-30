@@ -6,17 +6,22 @@ const ggencoder_1 = require("ggencoder");
 const Positions_1 = require("./Positions");
 const Position_1 = require("./Position");
 class Listener {
-    constructor(options) {
+    constructor(options, app) {
+        this.app = null;
         this.timestamp = 0;
         this.resourceName = null;
         this.positions = null;
         if (!options[0].port)
             throw new Error('missing \'port\' property');
+        if (app)
+            this.app = app;
         this.port = options[0].port;
         this.resetInterval = getOption(options, 'resetInterval');
         this.positionAccuracy = getOption(options, 'positionAccuracy');
         this.udpSocket = (0, dgram_1.createSocket)('udp4');
         this.udpSocket.on('message', (msg, rinfo) => {
+            if (this.app)
+                this.app.debug(`position report received`);
             if ((this.timestamp != 0) && ((this.timestamp + (this.resetInterval * 1000)) < Date.now())) {
                 this.saveResource();
                 this.timestamp = 0;
