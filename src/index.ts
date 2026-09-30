@@ -99,7 +99,7 @@ module.exports = function(app: any) {
         }
       } catch(e: any) {
         pluginStatus.setDefaultStatus('Stopped: configuration error');
-        app.debug(`${e.lineNumber}: ${e.message}`);
+        app.debug(`${e.message}`);
       }
     },
 
