@@ -5,7 +5,6 @@ import { Position } from './Position';
 
 export class Listener {
 
-  public app: any;
   public port: number;
   public resetInterval: number;
   public positionAccuracy: number;
@@ -13,15 +12,14 @@ export class Listener {
   public udpSocket: Socket;
   public timestamp: number = 0;
   public resourceName: string | null = null;
-  public positions: Positions;
+  public positions: Positions | null = null;
 
-  constructor(option: any, options: any, defaults: any, app: any) {
-    if (!option.port) throw new Error('missing \'port\' property');
+  constructor(listenerOtions: any, globalOptions: any, defaults: any) {
+    if (!listenerOtions.port) throw new Error('missing \'port\' property');
 
-    this.app = app;
-    this.port = option.port;
-    this.resetInterval = getOption([option, options], 'resetInterval', defaults.RESET_INTERVAL);
-    this.positionAccuracy = getOption([option, options], 'positionAccuracy', defaults.POSITION_ACCURACY);
+    this.port = listenerOtions.port;
+    this.resetInterval = getOption(listenerOtions, globalOptions, 'resetInterval', defaults.RESET_INTERVAL);
+    this.positionAccuracy = getOption(listenerOtions, globalOptions, 'positionAccuracy', defaults.POSITION_ACCURACY);
 
     this.udpSocket = createSocket('udp4');
     this.udpSocket.on('message', (msg: any, rinfo: any) => {
@@ -35,7 +33,7 @@ export class Listener {
       }
       this.timestamp = Date.now();
       var ais: AisDecodeOptions = new AisDecode('' + msg);
-      this.positions.add(new Position(ais.lat || 0, ais.lon || 0));
+      if (this.positions) this.positions.add(new Position(ais.lat || 0, ais.lon || 0));
     });
       
     /**
@@ -45,16 +43,11 @@ export class Listener {
      * @param fallback - the value to be returned if 'name' is not found in any object.
      * @returns 
      */
-    function getOption(objects: any[], name: string, fallback: any): any {
-      if (objects.length == 0) {
-        return(fallback);
-      } else {
-        if (objects[0][name] !== undefined) {
-          return(objects[0][name]);
-        } else {
-          return(getOption(objects.slice(1), name, fallback));
-        }
-      }
+    function getOption(listenerOptions: any, globalOptions: any, name: string, fallback: any): any {
+      var retval: any = fallback[name];
+      if (globalOptions.hasOwnProperty(name)) retval = globalOptions[name];
+      if (listenerOptions.hasOwnProperty(name)) retval = listenerOptions[name];
+      return(retval);
     }
 
   }
@@ -69,7 +62,7 @@ export class Listener {
   }
 
   saveResource() {
-    this.app.debug(`saving resource: ${this.positions.length()} to ${this.resourceName}`);
+    console.log(`saving resource: ${(this.positions)?this.positions.length():0} to ${this.resourceName}`);
   }
 
 }

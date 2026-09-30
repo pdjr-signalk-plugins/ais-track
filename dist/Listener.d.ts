@@ -7,8 +7,8 @@ export declare class Listener {
     udpSocket: Socket;
     timestamp: number;
     resourceName: string | null;
-    positions: Positions;
-    constructor(option: any, options: any, defaults: any);
+    positions: Positions | null;
+    constructor(listenerOtions: any, globalOptions: any, defaults: any);
     startListening(): void;
     stopListening(): void;
     saveResource(): void;

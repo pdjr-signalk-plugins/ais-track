@@ -89,7 +89,7 @@ module.exports = function(app: any) {
       pluginStatus = new PluginStatus(app, 'started');
       try {
         pluginConfiguration = makePluginConfiguration(options, DEFAULT_LISTENER_OPTIONS);
-        app.debug(`using configuration: ${JSON.stringify(pluginConfiguration, null, 2)}`)
+        app.debug(`using canonical configuration: ${JSON.stringify(pluginConfiguration, null, 2)}`)
 
         if (pluginConfiguration.listeners.length > 0) {
           pluginStatus.setDefaultStatus(`Generating tracks from ${pluginConfiguration.listeners.length} endpoint${(pluginConfiguration.listeners.length == 1)?'':'s'} (${pluginConfiguration.listeners.map((e) => ('\'' + e.port + '\'')).join(', ')})`);
@@ -130,7 +130,7 @@ module.exports = function(app: any) {
   function makePluginConfiguration(options: any, defaults: any): PluginConfiguration {
     app.debug(`makePluginConfiguration(${JSON.stringify(options)})...`);
     var retval: PluginConfiguration = {
-      listeners: options.listeners.map((option: any) => new Listener(option, options, defaults, app))
+      listeners: options.listeners.map((option: any) => new Listener(option, options, defaults))
     };
     return(retval);
   }
