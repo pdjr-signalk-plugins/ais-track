@@ -22,7 +22,7 @@ import { Socket, createSocket } from 'dgram';
 import { PluginStatus } from 'signalk-libpluginstatus';
 
 const DEFAULT_MY_AIS_CLASS = 'B';
-const DEFAULT_LISTENER_OPTIONS: any = { RESET_INTERVAL: 30, POSITION_ACCURACY: 5 };
+const DEFAULT_LISTENER_OPTIONS: any = { resetInterval: 30, positionAccuracy: 5 };
 
 const PLUGIN_ID: string = 'ais-track';
 const PLUGIN_NAME: string = 'ais-track';
@@ -130,7 +130,7 @@ module.exports = function(app: any) {
   function makePluginConfiguration(options: any, defaults: any): PluginConfiguration {
     app.debug(`makePluginConfiguration(${JSON.stringify(options)})...`);
     var retval: PluginConfiguration = {
-      listeners: options.listeners.map((option: any) => new Listener(option, options, defaults))
+      listeners: options.listeners.map((option: any) => new Listener([ option, options, defaults ]))
     };
     return(retval);
   }

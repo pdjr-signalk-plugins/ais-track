@@ -18,7 +18,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const Listener_1 = require("./Listener");
 const signalk_libpluginstatus_1 = require("signalk-libpluginstatus");
 const DEFAULT_MY_AIS_CLASS = 'B';
-const DEFAULT_LISTENER_OPTIONS = { RESET_INTERVAL: 30, POSITION_ACCURACY: 5 };
+const DEFAULT_LISTENER_OPTIONS = { resetInterval: 30, positionAccuracy: 5 };
 const PLUGIN_ID = 'ais-track';
 const PLUGIN_NAME = 'ais-track';
 const PLUGIN_DESCRIPTION = 'Generate tracks from AIS data.';
@@ -118,7 +118,7 @@ module.exports = function (app) {
     function makePluginConfiguration(options, defaults) {
         app.debug(`makePluginConfiguration(${JSON.stringify(options)})...`);
         var retval = {
-            listeners: options.listeners.map((option) => new Listener_1.Listener(option, options, defaults))
+            listeners: options.listeners.map((option) => new Listener_1.Listener([option, options, defaults]))
         };
         return (retval);
     }

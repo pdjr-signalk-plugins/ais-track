@@ -6,15 +6,15 @@ const ggencoder_1 = require("ggencoder");
 const Positions_1 = require("./Positions");
 const Position_1 = require("./Position");
 class Listener {
-    constructor(listenerOtions, globalOptions, defaults) {
+    constructor(options) {
         this.timestamp = 0;
         this.resourceName = null;
         this.positions = null;
-        if (!listenerOtions.port)
+        if (!options[0].port)
             throw new Error('missing \'port\' property');
-        this.port = listenerOtions.port;
-        this.resetInterval = getOption(listenerOtions, globalOptions, 'resetInterval', defaults.RESET_INTERVAL);
-        this.positionAccuracy = getOption(listenerOtions, globalOptions, 'positionAccuracy', defaults.POSITION_ACCURACY);
+        this.port = options[0].port;
+        this.resetInterval = getOption(options, 'resetInterval');
+        this.positionAccuracy = getOption(options, 'positionAccuracy');
         this.udpSocket = (0, dgram_1.createSocket)('udp4');
         this.udpSocket.on('message', (msg, rinfo) => {
             if ((this.timestamp != 0) && ((this.timestamp + (this.resetInterval * 1000)) < Date.now())) {
@@ -37,12 +37,12 @@ class Listener {
          * @param fallback - the value to be returned if 'name' is not found in any object.
          * @returns
          */
-        function getOption(listenerOptions, globalOptions, name, fallback) {
-            var retval = fallback[name];
-            if (globalOptions.hasOwnProperty(name))
-                retval = globalOptions[name];
-            if (listenerOptions.hasOwnProperty(name))
-                retval = listenerOptions[name];
+        function getOption(options, name) {
+            var retval = undefined;
+            options.reverse().forEach((opt) => {
+                if (opt.hasOwnProperty(name))
+                    retval = opt[name];
+            });
             return (retval);
         }
     }

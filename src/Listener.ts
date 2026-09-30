@@ -14,12 +14,12 @@ export class Listener {
   public resourceName: string | null = null;
   public positions: Positions | null = null;
 
-  constructor(listenerOtions: any, globalOptions: any, defaults: any) {
-    if (!listenerOtions.port) throw new Error('missing \'port\' property');
+  constructor(options: any[]) {
+    if (!options[0].port) throw new Error('missing \'port\' property');
 
-    this.port = listenerOtions.port;
-    this.resetInterval = getOption(listenerOtions, globalOptions, 'resetInterval', defaults.RESET_INTERVAL);
-    this.positionAccuracy = getOption(listenerOtions, globalOptions, 'positionAccuracy', defaults.POSITION_ACCURACY);
+    this.port = options[0].port;
+    this.resetInterval = getOption(options, 'resetInterval');
+    this.positionAccuracy = getOption(options, 'positionAccuracy');
 
     this.udpSocket = createSocket('udp4');
     this.udpSocket.on('message', (msg: any, rinfo: any) => {
@@ -43,10 +43,11 @@ export class Listener {
      * @param fallback - the value to be returned if 'name' is not found in any object.
      * @returns 
      */
-    function getOption(listenerOptions: any, globalOptions: any, name: string, fallback: any): any {
-      var retval: any = fallback[name];
-      if (globalOptions.hasOwnProperty(name)) retval = globalOptions[name];
-      if (listenerOptions.hasOwnProperty(name)) retval = listenerOptions[name];
+    function getOption(options: any[], name: string): any {
+      var retval: any = undefined;
+      options.reverse().forEach((opt) => {
+        if (opt.hasOwnProperty(name)) retval = opt[name];
+      });
       return(retval);
     }
 

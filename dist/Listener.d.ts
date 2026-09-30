@@ -8,7 +8,7 @@ export declare class Listener {
     timestamp: number;
     resourceName: string | null;
     positions: Positions | null;
-    constructor(listenerOtions: any, globalOptions: any, defaults: any);
+    constructor(options: any[]);
     startListening(): void;
     stopListening(): void;
     saveResource(): void;
