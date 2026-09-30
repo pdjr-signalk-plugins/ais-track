@@ -11,10 +11,9 @@ class Listener {
         this.timestamp = 0;
         this.resourceName = null;
         this.positions = null;
-        if (!options[0].port)
+        if (!options[0].hasOwnProperty('port'))
             throw new Error('missing \'port\' property');
-        if (app)
-            this.app = app;
+        this.app = app;
         this.port = options[0].port;
         this.resetInterval = getOption(options, 'resetInterval');
         this.positionAccuracy = getOption(options, 'positionAccuracy');

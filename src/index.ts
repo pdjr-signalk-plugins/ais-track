@@ -128,7 +128,7 @@ module.exports = function(app: any) {
    * @returns - a canonical PluginConfiguration.
    */
   function makePluginConfiguration(options: any, defaults: any): PluginConfiguration {
-    app.debug(`makePluginConfiguration(${JSON.stringify(options)})...`);
+    app.debug(`makePluginConfiguration(${JSON.stringify(options)}, ${JSON.stringify(defaults)})...`);
     var retval: PluginConfiguration = {
       listeners: options.listeners.map((option: any) => new Listener([ option, options, defaults ], app))
     };

@@ -16,9 +16,9 @@ export class Listener {
   public positions: Positions | null = null;
 
   constructor(options: any[], app: any) {
-    if (!options[0].port) throw new Error('missing \'port\' property');
+    if (!options[0].hasOwnProperty('port')) throw new Error('missing \'port\' property');
 
-    if (app) this.app = app;
+    this.app = app;
     this.port = options[0].port;
     this.resetInterval = getOption(options, 'resetInterval');
     this.positionAccuracy = getOption(options, 'positionAccuracy');
