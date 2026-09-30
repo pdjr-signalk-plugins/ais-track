@@ -23,10 +23,7 @@ export class Listener {
     this.resetInterval = getOption(options, 'resetInterval');
     this.positionAccuracy = getOption(options, 'positionAccuracy');
 
-    app.debug(`Listener: port ${this.port}, resetInterval ${this.resetInterval}, positionAccuracy ${this.positionAccuracy}`);
-
     this.udpSocket = createSocket('udp4');
-    app.debug(`Listener: created UDP socket`);
 
     this.udpSocket.on('message', (msg: any, rinfo: any) => {
       if (this.app) this.app.debug(`position report received`);
@@ -40,7 +37,8 @@ export class Listener {
         this.positions = new Positions();
       }
       this.timestamp = Date.now();
-      //var ais: AisDecodeOptions = new AisDecode('' + msg);
+      var ais: AisDecodeOptions = new AisDecode('' + msg);
+      this.app.debug(`AIS ${JSON.stringify(ais)}`);
       //if (this.positions) this.positions.add(new Position(ais.lat || 0, ais.lon || 0));
     });
       

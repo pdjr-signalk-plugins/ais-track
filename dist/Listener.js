@@ -2,6 +2,7 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Listener = void 0;
 const dgram_1 = require("dgram");
+const ggencoder_1 = require("ggencoder");
 const Positions_1 = require("./Positions");
 class Listener {
     constructor(options, app) {
@@ -15,9 +16,7 @@ class Listener {
         this.port = options[0].port;
         this.resetInterval = getOption(options, 'resetInterval');
         this.positionAccuracy = getOption(options, 'positionAccuracy');
-        app.debug(`Listener: port ${this.port}, resetInterval ${this.resetInterval}, positionAccuracy ${this.positionAccuracy}`);
         this.udpSocket = (0, dgram_1.createSocket)('udp4');
-        app.debug(`Listener: created UDP socket`);
         this.udpSocket.on('message', (msg, rinfo) => {
             if (this.app)
                 this.app.debug(`position report received`);
@@ -30,7 +29,8 @@ class Listener {
                 this.positions = new Positions_1.Positions();
             }
             this.timestamp = Date.now();
-            //var ais: AisDecodeOptions = new AisDecode('' + msg);
+            var ais = new ggencoder_1.AisDecode('' + msg);
+            this.app.debug(`AIS ${JSON.stringify(ais)}`);
             //if (this.positions) this.positions.add(new Position(ais.lat || 0, ais.lon || 0));
         });
         /**
