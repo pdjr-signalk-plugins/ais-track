@@ -34,12 +34,11 @@ export class Listener {
       }
       if (this.timestamp == 0) {
         this.resourceName = (new Date()).toISOString();
-        this.positions = new Positions();
+        this.positions = new Positions(this.app);
       }
       this.timestamp = Date.now();
       var ais: AisDecodeOptions = new AisDecode('' + msg);
-      this.app.debug(`AIS ${JSON.stringify(ais)}`);
-      //if (this.positions) this.positions.add(new Position(ais.lat || 0, ais.lon || 0));
+      if (this.positions) this.positions.add(new Position(ais.lat || 0, ais.lon || 0));
     });
       
     /**
