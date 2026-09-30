@@ -99,7 +99,7 @@ module.exports = function(app: any) {
         }
       } catch(e: any) {
         pluginStatus.setDefaultStatus('Stopped: configuration error');
-        app.debug(`${JSON.stringify(e, (x,v)=>(v==e)?undefined:e)}`);
+        app.debug(e.message);
       }
     },
 
