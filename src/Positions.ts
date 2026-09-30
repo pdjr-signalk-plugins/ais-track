@@ -18,7 +18,7 @@ export class Positions {
       this.app.debug(`Positions: saving new position: ${JSON.stringify(position)}`);
       this.positions.push(position);
     } else {
-      this.app.debug(`Positions: discarding duplicate position: ${JSON.stringify(position)}`);
+      this.app.debug(`Positions: discarding duplicate position`);
     }
   }
 }

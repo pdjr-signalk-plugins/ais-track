@@ -28,7 +28,7 @@ export class Listener {
     this.udpSocket.on('message', (msg: any, rinfo: any) => {
       this.app.debug(`Listener: position report received on port ${this.port}`);
 
-      if ((this.timestamp != 0) && ((this.timestamp + (this.resetInterval * 1000)) < Date.now())) {
+      if ((this.timestamp != 0) && ((this.timestamp + (this.resetInterval * 60000)) < Date.now())) {
         this.app.debug(`Listener: saving current track "${this.resourceName}"`);
         this.saveResource();
         this.timestamp = 0;

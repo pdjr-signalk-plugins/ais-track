@@ -15,7 +15,7 @@ class Positions {
             this.positions.push(position);
         }
         else {
-            this.app.debug(`Positions: discarding duplicate position: ${JSON.stringify(position)}`);
+            this.app.debug(`Positions: discarding duplicate position`);
         }
     }
 }
