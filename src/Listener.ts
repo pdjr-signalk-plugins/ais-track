@@ -26,14 +26,16 @@ export class Listener {
     this.udpSocket = createSocket('udp4');
 
     this.udpSocket.on('message', (msg: any, rinfo: any) => {
-      if (this.app) this.app.debug(`position report received`);
+      this.app.debug(`Listener: position report received on port ${this.port}`);
 
       if ((this.timestamp != 0) && ((this.timestamp + (this.resetInterval * 1000)) < Date.now())) {
+        this.app.debug(`Listener: saving current track "${this.resourceName}"`);
         this.saveResource();
         this.timestamp = 0;
       }
       if (this.timestamp == 0) {
         this.resourceName = (new Date()).toISOString();
+        this.app.debug(`Listener: starting new track "${this.resourceName}"`);
         this.positions = new Positions(this.app);
       }
       this.timestamp = Date.now();

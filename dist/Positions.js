@@ -11,8 +11,11 @@ class Positions {
     }
     add(position) {
         if ((this.positions.length == 0) || !((this.positions[this.positions.length - 1].latitude == position.latitude) && (this.positions[this.positions.length - 1].longitude == position.longitude))) {
-            this.app.debug(`Positions: pushing new location: ${JSON.stringify(position)}`);
+            this.app.debug(`Positions: saving new position: ${JSON.stringify(position)}`);
             this.positions.push(position);
+        }
+        else {
+            this.app.debug(`Positions: discarding duplicate position: ${JSON.stringify(position)}`);
         }
     }
 }
