@@ -48,6 +48,7 @@ class Listener {
             });
             return (retval);
         }
+        this.app.debug(`Listener complete`);
     }
     startListening() {
         this.udpSocket.bind(this.port);

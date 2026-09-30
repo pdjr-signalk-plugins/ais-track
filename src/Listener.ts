@@ -59,6 +59,8 @@ export class Listener {
       return(retval);
     }
 
+  this.app.debug(`Listener complete`);
+
   }
 
   startListening() {
