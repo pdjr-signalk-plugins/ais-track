@@ -15,7 +15,9 @@ class Listener {
         this.port = options[0].port;
         this.resetInterval = getOption(options, 'resetInterval');
         this.positionAccuracy = getOption(options, 'positionAccuracy');
+        app.debug(`Listener: port ${this.port}, resetInterval ${this.resetInterval}, positionAccuracy ${this.positionAccuracy}`);
         this.udpSocket = (0, dgram_1.createSocket)('udp4');
+        app.debug(`Listener: created UDP socket`);
         this.udpSocket.on('message', (msg, rinfo) => {
             if (this.app)
                 this.app.debug(`position report received`);

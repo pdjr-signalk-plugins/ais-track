@@ -23,7 +23,11 @@ export class Listener {
     this.resetInterval = getOption(options, 'resetInterval');
     this.positionAccuracy = getOption(options, 'positionAccuracy');
 
+    app.debug(`Listener: port ${this.port}, resetInterval ${this.resetInterval}, positionAccuracy ${this.positionAccuracy}`);
+
     this.udpSocket = createSocket('udp4');
+    app.debug(`Listener: created UDP socket`);
+
     this.udpSocket.on('message', (msg: any, rinfo: any) => {
       if (this.app) this.app.debug(`position report received`);
 
