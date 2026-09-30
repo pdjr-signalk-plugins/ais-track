@@ -1,4 +1,4 @@
-import { dgram } from 'node:dgram';
+import { Socket, createSocket } from 'dgram';
 import { AisDecode, AisDecodeOptions } from 'ggencoder';
 import { Positions } from './Positions';
 import { Position } from './Position';
@@ -9,7 +9,7 @@ export class Listener {
   public resetInterval: number = 0;
   public positionAccuracy: number = 4;
 
-  public udpSocket: Socket = null;
+  public udpSocket: Socket;
   public timestamp: number = 0;
   public resourceName: string | null = null;
   public positions: Positions;
@@ -22,14 +22,14 @@ export class Listener {
     this.resetInterval = getOption([option, options], 'resetInterval', defaults.RESET_INTERVAL);
 
     this.positions = new Positions();
-    this.udpSocket = dgram.createSocket('udp4');
+    this.udpSocket = createSocket('udp4');
     this.udpSocket.on('message', (msg: any, rinfo: any) => {
       if ((this.timestamp != 0) && ((this.timestamp + (this.resetInterval * 1000)) < Date.now())) {
-        // Save current resource
+        this.saveResource();
         this.timestamp = 0;
       }
       if (this.timestamp == 0) {
-        // Set this.resourceName
+        this.resourceName = (new Date()).toISOString();
       }
       this.timestamp = Date.now();
       var ais: AisDecodeOptions = new AisDecode('' + msg);
@@ -62,7 +62,12 @@ export class Listener {
   }
 
   stopListening() {
-    
+    this.udpSocket.close();
+    this.saveResource();
+  }
+
+  saveResource() {
+
   }
 
 }
