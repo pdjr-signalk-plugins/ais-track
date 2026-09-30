@@ -5,6 +5,7 @@ const dgram_1 = require("dgram");
 const ggencoder_1 = require("ggencoder");
 const Positions_1 = require("./Positions");
 const Position_1 = require("./Position");
+const axios_1 = require("axios");
 class Listener {
     constructor(options, app) {
         this.app = null;
@@ -17,6 +18,7 @@ class Listener {
         this.port = options[0].port;
         this.resetInterval = getOption(options, 'resetInterval');
         this.positionAccuracy = getOption(options, 'positionAccuracy');
+        this.putUrl = getOption(options, 'putUrl');
         this.udpSocket = (0, dgram_1.createSocket)('udp4');
         this.udpSocket.on('message', (msg, rinfo) => {
             this.app.debug(`Listener: position report received on port ${this.port}`);
@@ -59,8 +61,27 @@ class Listener {
         this.udpSocket.close();
         this.saveResource();
     }
-    saveResource() {
+    async saveResource() {
         console.log(`saving resource: ${(this.positions) ? this.positions.length() : 0} to ${this.resourceName}`);
+        if ((this.positions) && (this.positions.length() > 1)) {
+            var json = {
+                name: this.resourceName,
+                feature: {
+                    type: "Feature",
+                    geometry: {
+                        type: "LineString",
+                        coordinates: [this.positions.positions.map((p) => { return ([p.longitude, p.latitude]); })]
+                    }
+                }
+            };
+            try {
+                var res = await (0, axios_1.default)(this.putUrl, json);
+                this.app.debug(`Listener: PUT response = ${res.status}`);
+            }
+            catch (e) {
+                this.app.debug(`Listener: PUT failed`);
+            }
+        }
     }
 }
 exports.Listener = Listener;

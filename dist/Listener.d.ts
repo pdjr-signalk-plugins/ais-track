@@ -5,6 +5,7 @@ export declare class Listener {
     port: number;
     resetInterval: number;
     positionAccuracy: number;
+    putUrl: string;
     udpSocket: Socket;
     timestamp: number;
     resourceName: string | null;
@@ -12,5 +13,5 @@ export declare class Listener {
     constructor(options: any[], app: any);
     startListening(): void;
     stopListening(): void;
-    saveResource(): void;
+    saveResource(): Promise<void>;
 }

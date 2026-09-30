@@ -2,6 +2,7 @@ import { Socket, createSocket } from 'dgram';
 import { AisDecode, AisDecodeOptions } from 'ggencoder';
 import { Positions } from './Positions';
 import { Position } from './Position';
+import axios, { AxiosError } from 'axios';
 
 export class Listener {
 
@@ -9,6 +10,7 @@ export class Listener {
   public port: number;
   public resetInterval: number;
   public positionAccuracy: number;
+  public putUrl: string;
 
   public udpSocket: Socket;
   public timestamp: number = 0;
@@ -22,6 +24,7 @@ export class Listener {
     this.port = options[0].port;
     this.resetInterval = getOption(options, 'resetInterval');
     this.positionAccuracy = getOption(options, 'positionAccuracy');
+    this.putUrl = getOption(options, 'putUrl');
 
     this.udpSocket = createSocket('udp4');
 
@@ -71,8 +74,26 @@ export class Listener {
     this.saveResource();
   }
 
-  saveResource() {
+  async saveResource() {
     console.log(`saving resource: ${(this.positions)?this.positions.length():0} to ${this.resourceName}`);
+    if ((this.positions) && (this.positions.length() > 1)) {
+      var json: any = {
+        name: this.resourceName,
+        feature: {
+          type: "Feature",
+          geometry: {
+            type: "LineString",
+            coordinates: [ this.positions.positions.map((p: Position) => { return([ p.longitude, p.latitude ]); }) ]
+          }
+        }
+      };
+      try {
+        var res: any = await axios(this.putUrl, json);
+        this.app.debug(`Listener: PUT response = ${res.status}`);
+      } catch(e: any) {
+        this.app.debug(`Listener: PUT failed`);
+      }
+    }
   }
 
 }

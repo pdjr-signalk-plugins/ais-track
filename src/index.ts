@@ -15,7 +15,6 @@
  */
 
 import * as _ from 'lodash';
-import { Buffer } from 'buffer';
 import { Listener } from './Listener';
 import { AisDecode, AisDecodeOptions } from 'ggencoder';
 import { Socket, createSocket } from 'dgram';
@@ -40,6 +39,10 @@ const PLUGIN_SCHEMA: object = {
       "title": "Trim all latitude and longitude values to this number of decimal places",
       "type": "integer",
       "minimum": 0
+    },
+    "putUrl": {
+      "title": "URL for PUTting finished tracks",
+      "type": "string"
     },
     "listeners": {
       "type": "array",
@@ -66,6 +69,10 @@ const PLUGIN_SCHEMA: object = {
             "title": "Trim all latitude and longitude values to this number of decimal places",
             "type": "integer",
             "minimum": 0
+          },
+          "putUrl": {
+            "title": "URL for PUTting finished tracks",
+            "type": "string"
           }
         }        
       }

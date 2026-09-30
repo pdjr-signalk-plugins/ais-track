@@ -36,6 +36,10 @@ const PLUGIN_SCHEMA = {
             "type": "integer",
             "minimum": 0
         },
+        "putUrl": {
+            "title": "URL for PUTting finished tracks",
+            "type": "string"
+        },
         "listeners": {
             "type": "array",
             "title": "UDP port listeners",
@@ -61,6 +65,10 @@ const PLUGIN_SCHEMA = {
                         "title": "Trim all latitude and longitude values to this number of decimal places",
                         "type": "integer",
                         "minimum": 0
+                    },
+                    "putUrl": {
+                        "title": "URL for PUTting finished tracks",
+                        "type": "string"
                     }
                 }
             }
