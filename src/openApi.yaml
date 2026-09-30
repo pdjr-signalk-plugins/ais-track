@@ -1,0 +1,55 @@
+openapi: 3.0.3
+info:
+  title: AIS Track API
+  version: 1.0.0
+  license:
+    name: Apache 2.0
+    url: http://www.apache.org/licenses/LICENSE-2.0.html
+  description: |
+    [ais-reporter](https://github.com/pdjr-signalk-plugins/ais-track)
+    is a plugin for the
+    [Signal K node server](https://github.com/SignalK/signalk-server).
+
+    A Signal K server hosting the plugin will present this API under
+    the root https://*server_ip*:*server_port*/plugins/ais-track.
+externalDocs:
+  description: Plugin README document
+  url: https://github.com/pdjr-signalk-plugins/ais-track#readme 
+paths:
+  /status:
+    get:
+      description: |
+        Get a digest reporting the status of all configured endpoints.
+      responses:
+        '200':
+          description: |
+            Success.
+            The response body is an object containing a status report
+            object for each listener keyed by listener name.
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties:
+                  type: object
+                  properties:
+                    port:
+                      description: Port number of the listener endpoint.
+                      type: integer
+                      example: 12346
+                    status:
+                      description: Current status; one of "active" or "waiting".
+                      type: string
+                      example: "active"
+                    resource:
+                      description: Name of the current resource or "(none)".
+                      type: string
+                      example: "20251106:1610"
+                    positionCount:
+                      description: Number of positions written to the currently active resource.
+                      type: integer
+                      example: 456
+        '500':
+          description: |
+            Error.
+            The server was unable to service the request.

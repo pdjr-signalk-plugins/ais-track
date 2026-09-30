@@ -1,0 +1,38 @@
+{
+  "name": "ais-track",
+  "version": "1.0.0",
+  "description": "Generate tracks from AIS data.",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "signalk-plugin-enabled-by-default": false,
+  "scripts": {
+    "clean": "rm -rf node_modules package-lock.json *.tgz",
+    "make": "yq -o=json -I=2 src/openApi.yaml > dist/openApi.json && npm install && tsc",
+    "pack": "npm pack"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/pdjr-signalk-plugins/ais-track.git"
+  },
+  "keywords": [
+    "signalk-node-server-plugin",
+    "signalk-category-utility"
+  ],
+  "author": "Paul Reeve <preeve@pdjr.eu>",
+  "license": "Apache-2.0",
+  "bugs": {
+    "url": "https://github.com/pdjr-signalk-plugins/ais-track/issues"
+  },
+  "homepage": "https://github.com/pdjr-signalk-plugins/ais-track#readme",
+  "dependencies": {
+    "ggencoder": "^0.1.18",
+    "lodash": "^4.17.21",
+    "signalk-libpluginstatus": "github:pdjr-signalk/signalk-libpluginstatus"
+  },
+  "devDependencies": {
+    "@types/lodash": "^4.17.13",
+    "@types/node": "^22.20.4",
+    "typescript": "^5.6.2"
+  },
+  "directories": {}
+}
