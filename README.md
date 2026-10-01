@@ -12,14 +12,18 @@ offered by
 
 ## Working principle
 
-The plugin listens on a specified UDP port for incoming AIS position
-reports.
-When position reports start to be received they are concatenated into
-a Signal K track resource named in a way which reflects the start time
-of the track.
+The plugin listens on one or more specified UDP ports for incoming
+AIS position reports.
+
+For each UDP port listener the plugin builds a track by rounding the
+latitude and longitude of each incoming position and if the result
+differs from the previously received value concatenating it onto
+the developing track.
+
 When the position report stream dries up for a configured interval the
-resource is closed and sent using an HTTP PUT API call to a specified
-resource handler before the plugin returns to listening,
+track is closed and sent using an HTTP POST API call to a specified
+Signal K compliant resource handler before the plugin returns to
+listening for incoming AIS position reports.
 
 ## Generating AIS position data
 
@@ -60,10 +64,7 @@ a text editor is being used to directly edit the JSON configuration.
 ### A minimal configuration
 
 The plugin includes built-in defaults for most configuration properties
-so a minimal working configuration requires a *listeners* array
-containing at least one listener endpoint specified in terms of its
-service *port* and a *putUrl* which specifies the resource manager
-endpoint to which completed tracks should be transferred.
+so a minimal working configuration can be as simple as:
 
 ```json
 {  
@@ -71,13 +72,33 @@ endpoint to which completed tracks should be transferred.
     "listeners": [  
       { 
         "port": 12345,
-        "putUrl": "http://localhost:3000/signalk/v2/api/resources/routes"
+        "postUrl": "http://localhost:3000/signalk/v2/api/resources/routes"
       }  
     ]  
   },  
-  "enabled": true  
+  "enabled": true,
+  "enableDebug": false
 }
 ```
+
+### Default reporting intervals
+
+The minimal configuration described above uses built in, global,
+defaults to trim position latitude and longitude to five decimal
+places and sees a interruption in the incoming position data steam of
+30 minutes as a signal to save any current track and start a new one.
+
+#### Overriding plugin defaults
+
+The default described above can be overriden using the
+properties described below.
+
+*positionAccuracy* specifies the number of decimal places to which
+position latitude and longitude must be forced.
+
+*resetInterval* specifies the number of minutes that can elapse between
+the arrival of consecutive position reports for the reports to be
+considered part of the current track.
 
 ## Plugin API
 

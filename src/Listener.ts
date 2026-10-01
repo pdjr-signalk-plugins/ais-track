@@ -10,7 +10,7 @@ export class Listener {
   public port: number;
   public resetInterval: number;
   public positionAccuracy: number;
-  public putUrl: string;
+  public postUrl: string;
 
   public udpSocket: Socket;
   public timestamp: number = 0;
@@ -24,7 +24,7 @@ export class Listener {
     this.port = options[0].port;
     this.resetInterval = getOption(options, 'resetInterval');
     this.positionAccuracy = getOption(options, 'positionAccuracy');
-    this.putUrl = getOption(options, 'putUrl');
+    this.postUrl = getOption(options, 'putUrl');
 
     this.udpSocket = createSocket('udp4');
 
@@ -40,7 +40,7 @@ export class Listener {
       }
       this.timestamp = Date.now();
       var ais: AisDecodeOptions = new AisDecode('' + msg);
-      if (this.positions) this.positions.append(new Position(ais.lat || 0, ais.lon || 0));
+      if (this.positions) this.positions.append(new Position(ais.lat || 0, ais.lon || 0, this.positionAccuracy));
     });
       
     /**
@@ -90,7 +90,7 @@ export class Listener {
       formData.append('file', blob, 'data.json');
 
       try {
-        const response = await axios.post(this.putUrl, formData, {
+        const response = await axios.post(this.postUrl, formData, {
           headers: {
             'Content-Type': 'multipart/form-data',
           },

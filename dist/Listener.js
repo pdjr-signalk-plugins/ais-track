@@ -18,7 +18,7 @@ class Listener {
         this.port = options[0].port;
         this.resetInterval = getOption(options, 'resetInterval');
         this.positionAccuracy = getOption(options, 'positionAccuracy');
-        this.putUrl = getOption(options, 'putUrl');
+        this.postUrl = getOption(options, 'putUrl');
         this.udpSocket = (0, dgram_1.createSocket)('udp4');
         this.udpSocket.on('message', (msg, rinfo) => {
             this.app.debug(`Listener: position report received on port ${this.port}`);
@@ -32,7 +32,7 @@ class Listener {
             this.timestamp = Date.now();
             var ais = new ggencoder_1.AisDecode('' + msg);
             if (this.positions)
-                this.positions.append(new Position_1.Position(ais.lat || 0, ais.lon || 0));
+                this.positions.append(new Position_1.Position(ais.lat || 0, ais.lon || 0, this.positionAccuracy));
         });
         /**
          *
@@ -72,7 +72,7 @@ class Listener {
             const blob = new Blob([JSON.stringify(jsonData)], { type: 'application/json' });
             formData.append('file', blob, 'data.json');
             try {
-                const response = await axios_1.default.post(this.putUrl, formData, {
+                const response = await axios_1.default.post(this.postUrl, formData, {
                     headers: {
                         'Content-Type': 'multipart/form-data',
                     },

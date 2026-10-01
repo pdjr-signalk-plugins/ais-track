@@ -5,7 +5,7 @@ export declare class Listener {
     port: number;
     resetInterval: number;
     positionAccuracy: number;
-    putUrl: string;
+    postUrl: string;
     udpSocket: Socket;
     timestamp: number;
     resourceName: string | null;

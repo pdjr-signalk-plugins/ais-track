@@ -36,7 +36,7 @@ const PLUGIN_SCHEMA = {
             "type": "integer",
             "minimum": 0
         },
-        "putUrl": {
+        "postUrl": {
             "title": "URL for PUTting finished tracks",
             "type": "string"
         },
@@ -66,7 +66,7 @@ const PLUGIN_SCHEMA = {
                         "type": "integer",
                         "minimum": 0
                     },
-                    "putUrl": {
+                    "postUrl": {
                         "title": "URL for PUTting finished tracks",
                         "type": "string"
                     }
