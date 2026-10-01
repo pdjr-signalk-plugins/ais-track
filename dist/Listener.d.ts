@@ -13,5 +13,6 @@ export declare class Listener {
     constructor(options: any[], app: any);
     startListening(): void;
     stopListening(): void;
-    saveResource(): Promise<void>;
+    openResource(name: string): void;
+    closeResource(): Promise<void>;
 }

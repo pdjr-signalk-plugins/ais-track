@@ -32,14 +32,11 @@ export class Listener {
       this.app.debug(`Listener: position report received on port ${this.port}`);
 
       if ((this.timestamp != 0) && ((this.timestamp + (this.resetInterval * 60000)) < Date.now())) {
-        this.app.debug(`Listener: saving current track "${this.resourceName}"`);
-        this.saveResource();
+        this.closeResource();
         this.timestamp = 0;
       }
       if (this.timestamp == 0) {
-        this.resourceName = (new Date()).toISOString();
-        this.app.debug(`Listener: starting new track "${this.resourceName}"`);
-        this.positions = new Positions(this.app);
+        this.openResource((new Date()).toISOString());
       }
       this.timestamp = Date.now();
       var ais: AisDecodeOptions = new AisDecode('' + msg);
@@ -60,39 +57,50 @@ export class Listener {
       });
       return(retval);
     }
-
-  this.app.debug(`Listener complete`);
-
   }
 
   startListening() {
+    this.app.debug(`Listener: startListening: listening on port ${this.port}`);
+
     this.udpSocket.bind(this.port);
   }
 
   stopListening() {
+    this.app.debug(`Listener: stopListening:`);
+    
     this.udpSocket.close();
-    this.saveResource();
+    this.closeResource();
   }
 
-  async saveResource() {
-    console.log(`saving resource: ${(this.positions)?this.positions.length():0} to ${this.resourceName}`);
+  openResource(name: string) {
+    this.app.debug(`Listener: openResource: starting new track "${name}"`);
+
+    this.resourceName = name;
+    this.positions = new Positions(this.app);
+  }
+
+  async closeResource() {
+    this.app.debug(`Listener: closeResource: saving resource: ${(this.positions)?this.positions.length():0} to ${this.resourceName}`);
+    
     if ((this.positions) && (this.positions.length() > 1)) {
-      var json: any = {
-        name: this.resourceName,
-        feature: {
-          type: "Feature",
-          geometry: {
-            type: "LineString",
-            coordinates: [ this.positions.positions.map((p: Position) => { return([ p.longitude, p.latitude ]); }) ]
-          }
-        }
-      };
+      const formData = new FormData();
+      const jsonData = { name: this.resourceName, feature: { type: "Feature", geometry: { type: "LineString", coordinates: [ this.positions.positions.map((p: Position) => { return([ p.longitude, p.latitude ]); }) ] }}};
+      const blob = new Blob([JSON.stringify(jsonData)], { type: 'application/json' });
+
+      formData.append('file', blob, 'data.json');
+
       try {
-        var res: any = await axios(this.putUrl, json);
-        this.app.debug(`Listener: PUT response = ${res.status}`);
-      } catch(e: any) {
-        this.app.debug(`Listener: PUT failed`);
+        const response = await axios.post(this.putUrl, formData, {
+          headers: {
+            'Content-Type': 'multipart/form-data',
+          },
+        });
+        this.app.debug(`Listener: closeResource: response: ${response.data}`);
+      } catch (error: any) {
+        this.app.debug(`Listener: closeResource: error: ${error.response?.data || error.message}`);
       }
+    } else {
+      this.app.debug(`Listener: closeResource: refusing to save an empty track`);
     }
   }
 

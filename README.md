@@ -15,10 +15,11 @@ offered by
 The plugin listens on a specified UDP port for incoming AIS position
 reports.
 When position reports start to be received they are concatenated into
-a Signal K track resource named `YYYYMMDD:hhmm` (which reflects the
-start time of the track).
+a Signal K track resource named in a way which reflects the start time
+of the track.
 When the position report stream dries up for a configured interval the
-resource is closed and the plugin returns to listening,
+resource is closed and sent using an HTTP PUT API call to a specified
+resource handler before the plugin returns to listening,
 
 ## Generating AIS position data
 
@@ -35,7 +36,7 @@ See the `ais-reporter` documentation for more information.
 {
   "name": "ais-track",
   "ipAddress": "127.0.0.1",
-  "port": 12346,
+  "port": 12345,
   "positionReportInterval": 0,
   "staticReportInterval": 0,
   "myPositionReportInterval": [0,5],
@@ -48,7 +49,7 @@ See the `ais-reporter` documentation for more information.
 ## Plugin configuration
 
 To operate at all the plugin's JSON configuration file
-`~/.signalk/plugin-configuration-data/ais-reporter.json`
+`~/.signalk/plugin-configuration-data/ais-track.json`
 must be initialised using either Signal K's plugin configuration GUI
 or a text editor.
 
@@ -61,15 +62,16 @@ a text editor is being used to directly edit the JSON configuration.
 The plugin includes built-in defaults for most configuration properties
 so a minimal working configuration requires a *listeners* array
 containing at least one listener endpoint specified in terms of its
-service *port* (with maybe an optional descriptive *name*).
+service *port* and a *putUrl* which specifies the resource manager
+endpoint to which completed tracks should be transferred.
 
 ```json
 {  
   "configuration": {  
     "listeners": [  
       { 
-        "name": "Simple track",   
-        "port": 12346  
+        "port": 12345,
+        "putUrl": "http://localhost:3000/signalk/v2/api/resources/routes"
       }  
     ]  
   },  
