@@ -32,7 +32,7 @@ class Listener {
             this.timestamp = Date.now();
             var ais = new ggencoder_1.AisDecode('' + msg);
             if (this.positions)
-                this.positions.add(new Position_1.Position(ais.lat || 0, ais.lon || 0));
+                this.positions.append(new Position_1.Position(ais.lat || 0, ais.lon || 0));
         });
         /**
          *

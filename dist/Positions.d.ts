@@ -4,5 +4,5 @@ export declare class Positions {
     positions: Position[];
     constructor(app: any);
     length(): number;
-    add(position: Position): void;
+    append(position: Position): void;
 }

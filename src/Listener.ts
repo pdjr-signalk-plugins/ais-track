@@ -40,7 +40,7 @@ export class Listener {
       }
       this.timestamp = Date.now();
       var ais: AisDecodeOptions = new AisDecode('' + msg);
-      if (this.positions) this.positions.add(new Position(ais.lat || 0, ais.lon || 0));
+      if (this.positions) this.positions.append(new Position(ais.lat || 0, ais.lon || 0));
     });
       
     /**
@@ -67,7 +67,7 @@ export class Listener {
 
   stopListening() {
     this.app.debug(`Listener: stopListening:`);
-    
+
     this.udpSocket.close();
     this.closeResource();
   }
