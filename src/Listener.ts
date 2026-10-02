@@ -8,6 +8,7 @@ export class Listener {
 
   public accessToken: string | undefined = undefined;
   public app: any = undefined;
+  public name: string;
   public port: number;
   public positionAccuracy: number;
   public postUrl: string;
@@ -24,9 +25,10 @@ export class Listener {
 
     this.accessToken = getOption(options, 'accessToken');
     this.app = (app || undefined);
+    this.name = (options[0].hasOwnProperty('name'))?options[0].name:options[0].port;
     this.port = options[0].port;
     this.positionAccuracy = getOption(options, 'positionAccuracy');
-    this.postUrl = getOption(options, 'putUrl');
+    this.postUrl = getOption(options, 'postUrl');
     this.resetInterval = getOption(options, 'resetInterval');
     this.resetRepeat = getOption(options, 'resetRepeat');
 

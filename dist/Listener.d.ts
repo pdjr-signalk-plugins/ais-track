@@ -3,6 +3,7 @@ import { Positions } from './Positions';
 export declare class Listener {
     accessToken: string | undefined;
     app: any;
+    name: string;
     port: number;
     positionAccuracy: number;
     postUrl: string;

@@ -18,9 +18,10 @@ class Listener {
             throw new Error('missing \'port\' property');
         this.accessToken = getOption(options, 'accessToken');
         this.app = (app || undefined);
+        this.name = (options[0].hasOwnProperty('name')) ? options[0].name : options[0].port;
         this.port = options[0].port;
         this.positionAccuracy = getOption(options, 'positionAccuracy');
-        this.postUrl = getOption(options, 'putUrl');
+        this.postUrl = getOption(options, 'postUrl');
         this.resetInterval = getOption(options, 'resetInterval');
         this.resetRepeat = getOption(options, 'resetRepeat');
         this.udpSocket = (0, dgram_1.createSocket)('udp4');
