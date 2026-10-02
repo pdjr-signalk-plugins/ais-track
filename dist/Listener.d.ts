@@ -14,6 +14,7 @@ export declare class Listener {
     resourceName: string | null;
     positions: Positions | null;
     constructor(options: any[], app?: any);
+    dump(): void;
     startListening(): void;
     stopListening(): void;
     openResource(name: string): void;

@@ -16,7 +16,6 @@ class Listener {
         this.positions = null;
         if (!options[0].hasOwnProperty('port'))
             throw new Error('missing \'port\' property');
-        console.log(`>>> ${JSON.stringify(options, null, 2)}`);
         this.accessToken = getOption(options, 'accessToken');
         this.app = (app || undefined);
         this.name = (options[0].hasOwnProperty('name')) ? options[0].name : options[0].port;
@@ -25,6 +24,7 @@ class Listener {
         this.postUrl = getOption(options, 'postUrl');
         this.resetInterval = getOption(options, 'resetInterval');
         this.resetRepeat = getOption(options, 'resetRepeat');
+        this.dump();
         this.udpSocket = (0, dgram_1.createSocket)('udp4');
         this.udpSocket.on('message', (msg, rinfo) => {
             this.app.debug(`Listener: position report received on port ${this.port}`);
@@ -57,6 +57,17 @@ class Listener {
             });
             return (retval);
         }
+    }
+    dump() {
+        console.log(JSON.stringify({
+            accessToken: this.accessToken,
+            name: this.name,
+            port: this.port,
+            positionAccuracy: this.positionAccuracy,
+            postUrl: this.postUrl,
+            resetInterval: this.resetInterval,
+            resetRepeat: this.resetRepeat
+        }, null, 2));
     }
     startListening() {
         this.app.debug(`Listener: startListening: listening on port ${this.port}`);
