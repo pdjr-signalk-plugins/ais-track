@@ -23,7 +23,7 @@ export class Listener {
   constructor(options: any[], app?: any) {
     if (!options[0].hasOwnProperty('port')) throw new Error('missing \'port\' property');
 
-    console.log(JSON.stringify(options, null, 2));
+    console.log(`>>> ${JSON.stringify(options, null, 2)}`);
     this.accessToken = getOption(options, 'accessToken');
     this.app = (app || undefined);
     this.name = (options[0].hasOwnProperty('name'))?options[0].name:options[0].port;
