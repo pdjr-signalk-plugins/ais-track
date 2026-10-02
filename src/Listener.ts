@@ -33,7 +33,7 @@ export class Listener {
     this.resetRepeat = getOption(options, 'resetRepeat');
 
     this.dump();
-    
+
     this.udpSocket = createSocket('udp4');
 
     this.udpSocket.on('message', (msg: any, rinfo: any) => {
@@ -72,7 +72,7 @@ export class Listener {
   }
 
   dump() {
-    console.log(JSON.stringify({
+    console.log(`>>>>>>>>>>>>>>>> ${JSON.stringify({
       accessToken: this.accessToken,
       name: this.name,
       port: this.port,
@@ -80,7 +80,7 @@ export class Listener {
       postUrl: this.postUrl,
       resetInterval: this.resetInterval,
       resetRepeat: this.resetRepeat
-    }, null, 2));
+    }, null, 2)}`);
   }
 
   startListening() {

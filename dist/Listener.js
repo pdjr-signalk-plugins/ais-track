@@ -59,7 +59,7 @@ class Listener {
         }
     }
     dump() {
-        console.log(JSON.stringify({
+        console.log(`>>>>>>>>>>>>>>>> ${JSON.stringify({
             accessToken: this.accessToken,
             name: this.name,
             port: this.port,
@@ -67,7 +67,7 @@ class Listener {
             postUrl: this.postUrl,
             resetInterval: this.resetInterval,
             resetRepeat: this.resetRepeat
-        }, null, 2));
+        }, null, 2)}`);
     }
     startListening() {
         this.app.debug(`Listener: startListening: listening on port ${this.port}`);
