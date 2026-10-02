@@ -11,8 +11,6 @@ class Listener {
         this._timestamp = 0;
         this._positions = undefined;
         this._resourceId = '';
-        this.name = () => { return (this._name); };
-        this.port = () => { return (this._port); };
         if (!options[0].hasOwnProperty('port'))
             throw new Error('missing \'port\' property');
         if (!options[0].hasOwnProperty('postUrl'))
@@ -58,6 +56,8 @@ class Listener {
             return (retval);
         }
     }
+    getName() { return (this._name); }
+    getPort() { return (this._port); }
     startListening() {
         this._app.debug(`Listener: startListening: listening on port ${this._port}`);
         this._udpSocket.bind(this._port);

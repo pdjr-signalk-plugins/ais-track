@@ -12,8 +12,8 @@ export declare class Listener {
     private _positions;
     private _resourceId;
     constructor(options: any[], app: any);
-    name: () => string;
-    port: () => number;
+    getName(): string;
+    getPort(): number;
     startListening(): void;
     stopListening(): void;
     openResource(id: string): void;

@@ -116,7 +116,7 @@ module.exports = function(app: any) {
         pluginConfiguration = makePluginConfiguration(options, DEFAULT_LISTENER_OPTIONS);            
 
         if (pluginConfiguration.listeners.length > 0) {
-          pluginStatus.setDefaultStatus(`Generating tracks from ${pluginConfiguration.listeners.length} endpoint${(pluginConfiguration.listeners.length == 1)?'':'s'} (${pluginConfiguration.listeners.map((e) => ('\'' + e.port + '\'')).join(', ')})`);
+          pluginStatus.setDefaultStatus(`Generating tracks from ${pluginConfiguration.listeners.length} endpoint${(pluginConfiguration.listeners.length == 1)?'':'s'} (${pluginConfiguration.listeners.map((e) => ('\'' + e.getPort() + '\'')).join(', ')})`);
           startListening(pluginConfiguration);
         } else {
           pluginStatus.setDefaultStatus('Stopped: no configured listeners');

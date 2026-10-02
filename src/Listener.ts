@@ -70,8 +70,8 @@ export class Listener {
     }
   }
 
-  name = () => { return(this._name); }
-  port = () => { return(this._port); }
+  getName() { return(this._name); }
+  getPort() { return(this._port); }
 
   startListening() {
     this._app.debug(`Listener: startListening: listening on port ${this._port}`);
