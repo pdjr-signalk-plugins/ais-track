@@ -24,7 +24,7 @@ class Listener {
         this._resetInterval = getOption(options, 'resetInterval');
         this._resetRepeat = getOption(options, 'resetRepeat');
         this._udpSocket = (0, dgram_1.createSocket)('udp4');
-        this._app(`Listener: constructor: creating Listener "${this._name}" on port ${this._port}`);
+        this._app.debug(`Listener: constructor: creating Listener "${this._name}" on port ${this._port}`);
         this._udpSocket.on('message', (msg, rinfo) => {
             this._app.debug(`Listener: position report received on port ${this._port}`);
             if (this._timestamp != 0) {
