@@ -35,6 +35,8 @@ export class Listener {
 
     this._udpSocket = createSocket('udp4');
 
+    this._app(`Listener: constructor: creating Listener "${this._name}" on port ${this._port}`);
+
     this._udpSocket.on('message', (msg: any, rinfo: any) => {
       this._app.debug(`Listener: position report received on port ${this._port}`);
 

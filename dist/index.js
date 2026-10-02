@@ -141,7 +141,6 @@ module.exports = function (app) {
      * @returns - a canonical PluginConfiguration.
      */
     function makePluginConfiguration(options, defaults) {
-        app.debug(`makePluginConfiguration(${JSON.stringify(options)}, ${JSON.stringify(defaults)})...`);
         var retval = {
             listeners: options.listeners.map((option) => new Listener_1.Listener([option, options, defaults], app))
         };
@@ -159,7 +158,6 @@ module.exports = function (app) {
      * @returns - NodeJS.timeout handle of the timer control.
      */
     function startListening(pluginConfiguration) {
-        app.debug(`startListening(pluginConfiguration)...`);
         pluginConfiguration.listeners.forEach(listener => listener.startListening());
     }
     function stopListening(pluginConfiguration) {
