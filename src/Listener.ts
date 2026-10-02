@@ -7,7 +7,7 @@ import axios, { AxiosError } from 'axios';
 export class Listener {
 
   public accessToken: string | undefined = undefined;
-  public app: any = undefined;
+  public app: any;
   public name: string;
   public port: number;
   public positionAccuracy: number;

@@ -9,7 +9,6 @@ const axios_1 = require("axios");
 class Listener {
     constructor(options, app) {
         this.accessToken = undefined;
-        this.app = undefined;
         this.resetRepeat = undefined;
         this.timestamp = 0;
         this.resourceName = null;
