@@ -13,7 +13,7 @@ export declare class Listener {
     timestamp: number;
     resourceName: string | null;
     positions: Positions | null;
-    constructor(options: any[], app?: any);
+    constructor(options: any[], app: any);
     dump(): void;
     startListening(): void;
     stopListening(): void;

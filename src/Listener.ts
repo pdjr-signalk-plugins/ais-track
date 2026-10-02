@@ -20,11 +20,11 @@ export class Listener {
   public resourceName: string | null = null;
   public positions: Positions | null = null;
 
-  constructor(options: any[], app?: any) {
+  constructor(options: any[], app: any) {
     if (!options[0].hasOwnProperty('port')) throw new Error('missing \'port\' property');
 
     this.accessToken = getOption(options, 'accessToken');
-    this.app = (app || undefined);
+    this.app = app;
     this.name = (options[0].hasOwnProperty('name'))?options[0].name:options[0].port;
     this.port = options[0].port;
     this.positionAccuracy = getOption(options, 'positionAccuracy');
