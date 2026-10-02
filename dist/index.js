@@ -31,13 +31,22 @@ const PLUGIN_SCHEMA = {
             "type": "integer",
             "minimum": 0
         },
+        "resetRepeat": {
+            "title": "Number of identical, consecutive, positions that should trigger closure of a track",
+            "type": "integer",
+            "minimum": 2
+        },
         "positionAccuracy": {
             "title": "Trim all latitude and longitude values to this number of decimal places",
             "type": "integer",
             "minimum": 0
         },
         "postUrl": {
-            "title": "URL for PUTting finished tracks",
+            "title": "URL of a reource manager to which completed tracks should be POSTed",
+            "type": "string"
+        },
+        "accessToken": {
+            "title": "Access token that may be required by the reource manager",
             "type": "string"
         },
         "listeners": {
@@ -56,6 +65,11 @@ const PLUGIN_SCHEMA = {
                         "type": "number",
                         "minimum": 0
                     },
+                    "resetRepeat": {
+                        "title": "Number of identical, consecutive, positions that should trigger closure of a track",
+                        "type": "integer",
+                        "minimum": 2
+                    },
                     "resetInterval": {
                         "title": "Number of minutes silence after which the current track will be closed",
                         "type": "integer",
@@ -68,6 +82,10 @@ const PLUGIN_SCHEMA = {
                     },
                     "postUrl": {
                         "title": "URL for PUTting finished tracks",
+                        "type": "string"
+                    },
+                    "accessToken": {
+                        "title": "Access token that may be required by the reource manager",
                         "type": "string"
                     }
                 }

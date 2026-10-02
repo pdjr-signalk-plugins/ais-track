@@ -6,38 +6,46 @@ import axios, { AxiosError } from 'axios';
 
 export class Listener {
 
-  public app: any | null = null;
+  public accessToken: string | undefined = undefined;
+  public app: any = undefined;
   public port: number;
-  public resetInterval: number;
   public positionAccuracy: number;
   public postUrl: string;
+  public resetInterval: number;
+  public resetRepeat: number | undefined = undefined;
 
   public udpSocket: Socket;
   public timestamp: number = 0;
   public resourceName: string | null = null;
   public positions: Positions | null = null;
 
-  constructor(options: any[], app: any) {
+  constructor(options: any[], app?: any) {
     if (!options[0].hasOwnProperty('port')) throw new Error('missing \'port\' property');
 
-    this.app = app;
+    this.accessToken = getOption(options, 'accessToken');
+    this.app = (app || undefined);
     this.port = options[0].port;
-    this.resetInterval = getOption(options, 'resetInterval');
     this.positionAccuracy = getOption(options, 'positionAccuracy');
     this.postUrl = getOption(options, 'putUrl');
+    this.resetInterval = getOption(options, 'resetInterval');
+    this.resetRepeat = getOption(options, 'resetRepeat');
 
     this.udpSocket = createSocket('udp4');
 
     this.udpSocket.on('message', (msg: any, rinfo: any) => {
       this.app.debug(`Listener: position report received on port ${this.port}`);
 
-      if ((this.timestamp != 0) && ((this.timestamp + (this.resetInterval * 60000)) < Date.now())) {
-        this.closeResource();
-        this.timestamp = 0;
+      if (this.timestamp != 0) {
+        if (((this.timestamp + (this.resetInterval * 60000)) < Date.now()) || (this.resetRepeat && this.positions && (this.positions.consecutiveRepeats() > this.resetRepeat))) {
+          this.closeResource();
+          this.timestamp = 0;
+        }
       }
+
       if (this.timestamp == 0) {
         this.openResource((new Date()).toISOString());
       }
+
       this.timestamp = Date.now();
       var ais: AisDecodeOptions = new AisDecode('' + msg);
       if (this.positions) this.positions.append(new Position(ais.lat || 0, ais.lon || 0, this.positionAccuracy));
@@ -84,7 +92,7 @@ export class Listener {
     
     if ((this.positions) && (this.positions.length() > 1)) {
       const formData = new FormData();
-      const jsonData = { name: this.resourceName, feature: { type: "Feature", geometry: { type: "LineString", coordinates: [ this.positions.positions.map((p: Position) => { return([ p.longitude, p.latitude ]); }) ] }}};
+      const jsonData = { name: this.resourceName, feature: { type: "Feature", geometry: { type: "LineString", coordinates: [ this.positions.positions().map((p: Position) => { return([ p.longitude, p.latitude ]); }) ] }}};
       const blob = new Blob([JSON.stringify(jsonData)], { type: 'application/json' });
 
       formData.append('file', blob, 'data.json');

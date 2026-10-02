@@ -1,8 +1,11 @@
 import { Position } from './Position';
 export declare class Positions {
-    app: any;
-    positions: Position[];
-    constructor(app: any);
+    private _app;
+    private _positions;
+    private _consecutiveRepeats;
+    constructor(app?: any);
+    positions(): Position[];
     length(): number;
+    consecutiveRepeats(): number;
     append(position: Position): void;
 }

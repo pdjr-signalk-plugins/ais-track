@@ -8,23 +8,29 @@ const Position_1 = require("./Position");
 const axios_1 = require("axios");
 class Listener {
     constructor(options, app) {
-        this.app = null;
+        this.accessToken = undefined;
+        this.app = undefined;
+        this.resetRepeat = undefined;
         this.timestamp = 0;
         this.resourceName = null;
         this.positions = null;
         if (!options[0].hasOwnProperty('port'))
             throw new Error('missing \'port\' property');
-        this.app = app;
+        this.accessToken = getOption(options, 'accessToken');
+        this.app = (app || undefined);
         this.port = options[0].port;
-        this.resetInterval = getOption(options, 'resetInterval');
         this.positionAccuracy = getOption(options, 'positionAccuracy');
         this.postUrl = getOption(options, 'putUrl');
+        this.resetInterval = getOption(options, 'resetInterval');
+        this.resetRepeat = getOption(options, 'resetRepeat');
         this.udpSocket = (0, dgram_1.createSocket)('udp4');
         this.udpSocket.on('message', (msg, rinfo) => {
             this.app.debug(`Listener: position report received on port ${this.port}`);
-            if ((this.timestamp != 0) && ((this.timestamp + (this.resetInterval * 60000)) < Date.now())) {
-                this.closeResource();
-                this.timestamp = 0;
+            if (this.timestamp != 0) {
+                if (((this.timestamp + (this.resetInterval * 60000)) < Date.now()) || (this.resetRepeat && this.positions && (this.positions.consecutiveRepeats() > this.resetRepeat))) {
+                    this.closeResource();
+                    this.timestamp = 0;
+                }
             }
             if (this.timestamp == 0) {
                 this.openResource((new Date()).toISOString());
@@ -68,7 +74,7 @@ class Listener {
         this.app.debug(`Listener: closeResource: saving resource: ${(this.positions) ? this.positions.length() : 0} to ${this.resourceName}`);
         if ((this.positions) && (this.positions.length() > 1)) {
             const formData = new FormData();
-            const jsonData = { name: this.resourceName, feature: { type: "Feature", geometry: { type: "LineString", coordinates: [this.positions.positions.map((p) => { return ([p.longitude, p.latitude]); })] } } };
+            const jsonData = { name: this.resourceName, feature: { type: "Feature", geometry: { type: "LineString", coordinates: [this.positions.positions().map((p) => { return ([p.longitude, p.latitude]); })] } } };
             const blob = new Blob([JSON.stringify(jsonData)], { type: 'application/json' });
             formData.append('file', blob, 'data.json');
             try {

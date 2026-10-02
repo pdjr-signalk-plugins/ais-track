@@ -12,18 +12,20 @@ offered by
 
 ## Working principle
 
-The plugin listens on one or more specified UDP ports for incoming
-AIS position reports.
+The plugin creates one or more *listener*s each of which is associated
+with a specific UDP port on which it will expect to receive a steam of
+incoming AIS position reports.
 
-For each UDP port listener the plugin builds a track by rounding the
-latitude and longitude of each incoming position and if the result
-differs from the previously received value concatenating it onto
-the developing track.
+Each listener builds a *current track* from received position reports
+by rounding latitude and longitude values to some user-configured
+resolution and saving the clean position.
+Consecutive identical repeat positions are discarded.
 
 When the position report stream dries up for a configured interval the
-track is closed and sent using an HTTP POST API call to a specified
-Signal K compliant resource handler before the plugin returns to
-listening for incoming AIS position reports.
+current track is closed and sent using an HTTP POST API call to a
+specified Signal K compliant resource handler before the plugin returns
+to await further possible incoming AIS position reports.
+Typically, each track will be saved as a Signal K Route.
 
 ## Generating AIS position data
 
@@ -81,24 +83,23 @@ so a minimal working configuration can be as simple as:
 }
 ```
 
-### Default reporting intervals
+This minimal configuration relies on built-in, global, defaults to
+trim position latitude and longitude to five decimal places and sees an
+interruption in the incoming position data steam of 30 minutes as a
+signal to save any current track and start a new one.
 
-The minimal configuration described above uses built in, global,
-defaults to trim position latitude and longitude to five decimal
-places and sees a interruption in the incoming position data steam of
-30 minutes as a signal to save any current track and start a new one.
+#### Configuration properties
 
-#### Overriding plugin defaults
-
-The default described above can be overriden using the
-properties described below.
-
-*positionAccuracy* specifies the number of decimal places to which
-position latitude and longitude must be forced.
-
-*resetInterval* specifies the number of minutes that can elapse between
-the arrival of consecutive position reports for the reports to be
-considered part of the current track.
+|-- |-- |
+| *listeners* | Required array of *listener* definition objects. |
+| *listener.name* | Optional identifier to be used as a Route name for tracks from this listener. |
+| *listener.port* | Required number of the UDP port on which the listener should wait. |
+| [*listener*.]*postUrl* | Required POST path to a Signal K resource manager that will save completed tracks. |
+| [*listener*.]*accessToken* | Optional access token which may be required by the resource manager. |
+| [*listener*.]*positionAccuracy* | Optional number specifying the number of decimal places to which
+position latitude and longitude must be forced. Defaults to 4. |
+| [*listener*.]*resetInterval* | Optional number specifying the number of minutes that can elapse between the arrival of consecutive position reports for the reports to be considered part of the current track. Defaults to 30. |
+| [*listener*.]*resetRepeat* | Optional number specifying the number of consecutive, identical, positions that should trigger closure of a track. Defauts to 30. |
 
 ## Plugin API
 

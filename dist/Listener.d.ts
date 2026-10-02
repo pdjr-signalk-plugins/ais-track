@@ -1,16 +1,18 @@
 import { Socket } from 'dgram';
 import { Positions } from './Positions';
 export declare class Listener {
-    app: any | null;
+    accessToken: string | undefined;
+    app: any;
     port: number;
-    resetInterval: number;
     positionAccuracy: number;
     postUrl: string;
+    resetInterval: number;
+    resetRepeat: number | undefined;
     udpSocket: Socket;
     timestamp: number;
     resourceName: string | null;
     positions: Positions | null;
-    constructor(options: any[], app: any);
+    constructor(options: any[], app?: any);
     startListening(): void;
     stopListening(): void;
     openResource(name: string): void;

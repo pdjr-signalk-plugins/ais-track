@@ -2,23 +2,34 @@ import { Position } from './Position'
 
 export class Positions {
 
-  public app: any;
-  public positions: Position[] = [];
+  private _app: any | undefined = undefined;
+  private _positions: Position[] = [];
+  private _consecutiveRepeats: number = 0;
 
-  constructor(app: any) {
-    this.app = app;
+  constructor(app?: any) {
+    this._app = (app || undefined);
+  }
+
+  positions(): Position[] {
+    return(this._positions);
   }
 
   length(): number {
-    return(this.positions.length);
+    return(this._positions.length);
+  }
+
+  consecutiveRepeats(): number {
+    return(this._consecutiveRepeats);
   }
 
   append(position: Position) {
-    if ((this.positions.length == 0) || !((this.positions[this.positions.length - 1].latitude == position.latitude) && (this.positions[this.positions.length - 1].longitude == position.longitude))) {
-      this.app.debug(`Positions: append: saving new position [ ${position.longitude}, ${position.latitude} ]`);
-      this.positions.push(position);
+    if ((this._positions.length == 0) || !((this._positions[this._positions.length - 1].latitude == position.latitude) && (this._positions[this._positions.length - 1].longitude == position.longitude))) {
+      if (this._app) this._app.debug(`Positions: append: saving new position [ ${position.longitude}, ${position.latitude} ]`);
+      this._positions.push(position);
+      this._consecutiveRepeats = 0;
     } else {
-      this.app.debug(`Positions: append: discarding duplicate position`);
+      if (this._app) this._app.debug(`Positions: append: discarding duplicate position`);
+      this._consecutiveRepeats++;
     }
   }
 }

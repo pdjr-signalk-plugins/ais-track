@@ -3,19 +3,31 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.Positions = void 0;
 class Positions {
     constructor(app) {
-        this.positions = [];
-        this.app = app;
+        this._app = undefined;
+        this._positions = [];
+        this._consecutiveRepeats = 0;
+        this._app = (app || undefined);
+    }
+    positions() {
+        return (this._positions);
     }
     length() {
-        return (this.positions.length);
+        return (this._positions.length);
+    }
+    consecutiveRepeats() {
+        return (this._consecutiveRepeats);
     }
     append(position) {
-        if ((this.positions.length == 0) || !((this.positions[this.positions.length - 1].latitude == position.latitude) && (this.positions[this.positions.length - 1].longitude == position.longitude))) {
-            this.app.debug(`Positions: append: saving new position [ ${position.longitude}, ${position.latitude} ]`);
-            this.positions.push(position);
+        if ((this._positions.length == 0) || !((this._positions[this._positions.length - 1].latitude == position.latitude) && (this._positions[this._positions.length - 1].longitude == position.longitude))) {
+            if (this._app)
+                this._app.debug(`Positions: append: saving new position [ ${position.longitude}, ${position.latitude} ]`);
+            this._positions.push(position);
+            this._consecutiveRepeats = 0;
         }
         else {
-            this.app.debug(`Positions: append: discarding duplicate position`);
+            if (this._app)
+                this._app.debug(`Positions: append: discarding duplicate position`);
+            this._consecutiveRepeats++;
         }
     }
 }
