@@ -106,13 +106,7 @@ module.exports = function (app) {
         start: function (options) {
             pluginStatus = new signalk_libpluginstatus_1.PluginStatus(app, 'started');
             try {
-                try {
-                    pluginConfiguration = makePluginConfiguration(options, DEFAULT_LISTENER_OPTIONS);
-                }
-                catch (e) {
-                    pluginStatus.setDefaultStatus(`Stopped: configuration error`);
-                    app.debug(`configuration error: ${e.message}`);
-                }
+                pluginConfiguration = makePluginConfiguration(options, DEFAULT_LISTENER_OPTIONS);
                 if (pluginConfiguration.listeners.length > 0) {
                     pluginStatus.setDefaultStatus(`Generating tracks from ${pluginConfiguration.listeners.length} endpoint${(pluginConfiguration.listeners.length == 1) ? '' : 's'} (${pluginConfiguration.listeners.map((e) => ('\'' + e.port + '\'')).join(', ')})`);
                     startListening(pluginConfiguration);

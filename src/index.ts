@@ -113,12 +113,7 @@ module.exports = function(app: any) {
     start: function(options: any) {
       pluginStatus = new PluginStatus(app, 'started');
       try {
-        try {
-          pluginConfiguration = makePluginConfiguration(options, DEFAULT_LISTENER_OPTIONS);            
-        } catch(e: any) {
-          pluginStatus.setDefaultStatus(`Stopped: configuration error`);
-          app.debug(`configuration error: ${e.message}`);
-        }
+        pluginConfiguration = makePluginConfiguration(options, DEFAULT_LISTENER_OPTIONS);            
 
         if (pluginConfiguration.listeners.length > 0) {
           pluginStatus.setDefaultStatus(`Generating tracks from ${pluginConfiguration.listeners.length} endpoint${(pluginConfiguration.listeners.length == 1)?'':'s'} (${pluginConfiguration.listeners.map((e) => ('\'' + e.port + '\'')).join(', ')})`);

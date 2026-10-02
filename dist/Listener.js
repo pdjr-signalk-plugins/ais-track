@@ -8,38 +8,39 @@ const Position_1 = require("./Position");
 const axios_1 = require("axios");
 class Listener {
     constructor(options, app) {
-        this.accessToken = undefined;
-        this.resetRepeat = undefined;
-        this.timestamp = 0;
-        this.resourceName = null;
-        this.positions = null;
+        this._timestamp = 0;
+        this._positions = undefined;
+        this._resourceId = '';
+        this.name = () => { return (this._name); };
+        this.port = () => { return (this._port); };
         if (!options[0].hasOwnProperty('port'))
             throw new Error('missing \'port\' property');
-        this.accessToken = getOption(options, 'accessToken');
-        this.app = app;
-        this.name = (options[0].hasOwnProperty('name')) ? options[0].name : options[0].port;
-        this.port = options[0].port;
-        this.positionAccuracy = getOption(options, 'positionAccuracy');
-        this.postUrl = getOption(options, 'postUrl');
-        this.resetInterval = getOption(options, 'resetInterval');
-        this.resetRepeat = getOption(options, 'resetRepeat');
-        this.dump();
-        this.udpSocket = (0, dgram_1.createSocket)('udp4');
-        this.udpSocket.on('message', (msg, rinfo) => {
-            this.app.debug(`Listener: position report received on port ${this.port}`);
-            if (this.timestamp != 0) {
-                if (((this.timestamp + (this.resetInterval * 60000)) < Date.now()) || (this.resetRepeat && this.positions && (this.positions.consecutiveRepeats() > this.resetRepeat))) {
+        if (!options[0].hasOwnProperty('postUrl'))
+            throw new Error('missing \'postUrl\' property');
+        this._app = app;
+        this._name = (options[0].hasOwnProperty('name')) ? options[0].name : options[0].port;
+        this._port = options[0].port;
+        this._postUrl = getOption(options, 'postUrl');
+        this._accessToken = getOption(options, 'accessToken');
+        this._positionAccuracy = getOption(options, 'positionAccuracy');
+        this._resetInterval = getOption(options, 'resetInterval');
+        this._resetRepeat = getOption(options, 'resetRepeat');
+        this._udpSocket = (0, dgram_1.createSocket)('udp4');
+        this._udpSocket.on('message', (msg, rinfo) => {
+            this._app.debug(`Listener: position report received on port ${this._port}`);
+            if (this._timestamp != 0) {
+                if (((this._timestamp + (this._resetInterval * 60000)) < Date.now()) || (this._resetRepeat && this._positions && (this._positions.consecutiveRepeats() > this._resetRepeat))) {
                     this.closeResource();
-                    this.timestamp = 0;
+                    this._timestamp = 0;
                 }
             }
-            if (this.timestamp == 0) {
+            if (this._timestamp == 0) {
                 this.openResource((new Date()).toISOString());
             }
-            this.timestamp = Date.now();
+            this._timestamp = Date.now();
             var ais = new ggencoder_1.AisDecode('' + msg);
-            if (this.positions)
-                this.positions.append(new Position_1.Position(ais.lat || 0, ais.lon || 0, this.positionAccuracy));
+            if (this._positions)
+                this._positions.append(new Position_1.Position(ais.lat || 0, ais.lon || 0, this._positionAccuracy));
         });
         /**
          *
@@ -57,52 +58,41 @@ class Listener {
             return (retval);
         }
     }
-    dump() {
-        console.log(`>>>>>>>>>>>>>>>> ${JSON.stringify({
-            accessToken: this.accessToken,
-            name: this.name,
-            port: this.port,
-            positionAccuracy: this.positionAccuracy,
-            postUrl: this.postUrl,
-            resetInterval: this.resetInterval,
-            resetRepeat: this.resetRepeat
-        }, null, 2)}`);
-    }
     startListening() {
-        this.app.debug(`Listener: startListening: listening on port ${this.port}`);
-        this.udpSocket.bind(this.port);
+        this._app.debug(`Listener: startListening: listening on port ${this._port}`);
+        this._udpSocket.bind(this._port);
     }
     stopListening() {
-        this.app.debug(`Listener: stopListening:`);
-        this.udpSocket.close();
+        this._app.debug(`Listener: stopListening:`);
+        this._udpSocket.close();
         this.closeResource();
     }
-    openResource(name) {
-        this.app.debug(`Listener: openResource: starting new track "${name}"`);
-        this.resourceName = name;
-        this.positions = new Positions_1.Positions(this.app);
+    openResource(id) {
+        this._app.debug(`Listener: openResource: starting new track`);
+        this._resourceId = id;
+        this._positions = new Positions_1.Positions(this._app);
     }
     async closeResource() {
-        this.app.debug(`Listener: closeResource: saving resource: ${(this.positions) ? this.positions.length() : 0} to ${this.resourceName}`);
-        if ((this.positions) && (this.positions.length() > 1)) {
+        this._app.debug(`Listener: closeResource: saving resource with ${(this._positions) ? this._positions.length() : 0}`);
+        if ((this._positions) && (this._positions.length() > 1)) {
             const formData = new FormData();
-            const jsonData = { name: this.resourceName, feature: { type: "Feature", geometry: { type: "LineString", coordinates: [this.positions.positions().map((p) => { return ([p.longitude, p.latitude]); })] } } };
+            const jsonData = { name: this._name, feature: { type: "Feature", geometry: { type: "LineString", coordinates: [this._positions.positions().map((p) => { return ([p.longitude, p.latitude]); })] } } };
             const blob = new Blob([JSON.stringify(jsonData)], { type: 'application/json' });
             formData.append('file', blob, 'data.json');
             try {
-                const response = await axios_1.default.post(this.postUrl, formData, {
+                const response = await axios_1.default.post(this._postUrl, formData, {
                     headers: {
                         'Content-Type': 'multipart/form-data',
                     },
                 });
-                this.app.debug(`Listener: closeResource: response: ${response.data}`);
+                this._app.debug(`Listener: closeResource: response: ${response.data}`);
             }
             catch (error) {
-                this.app.debug(`Listener: closeResource: error: ${error.response?.data || error.message}`);
+                this._app.debug(`Listener: closeResource: error: ${error.response?.data || error.message}`);
             }
         }
         else {
-            this.app.debug(`Listener: closeResource: refusing to save an empty track`);
+            this._app.debug(`Listener: closeResource: refusing to save an empty track`);
         }
     }
 }

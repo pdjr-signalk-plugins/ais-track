@@ -6,53 +6,52 @@ import axios, { AxiosError } from 'axios';
 
 export class Listener {
 
-  public accessToken: string | undefined = undefined;
-  public app: any;
-  public name: string;
-  public port: number;
-  public positionAccuracy: number;
-  public postUrl: string;
-  public resetInterval: number;
-  public resetRepeat: number | undefined = undefined;
+  private _app: any;
+  private _name: string;
+  private _port: number;
+  private _postUrl: string;
+  private _accessToken: string | undefined;
+  private _positionAccuracy: number;
+  private _resetInterval: number;
+  private _resetRepeat: number;
 
-  public udpSocket: Socket;
-  public timestamp: number = 0;
-  public resourceName: string | null = null;
-  public positions: Positions | null = null;
+  private _udpSocket: Socket;
+  private _timestamp: number = 0;
+  private _positions: Positions | undefined = undefined;
+  private _resourceId: string = '';
 
   constructor(options: any[], app: any) {
     if (!options[0].hasOwnProperty('port')) throw new Error('missing \'port\' property');
+    if (!options[0].hasOwnProperty('postUrl')) throw new Error('missing \'postUrl\' property');
+  
+    this._app = app;
+    this._name = (options[0].hasOwnProperty('name'))?options[0].name:options[0].port;
+    this._port = options[0].port;
+    this._postUrl = getOption(options, 'postUrl');
+    this._accessToken = getOption(options, 'accessToken');
+    this._positionAccuracy = getOption(options, 'positionAccuracy');
+    this._resetInterval = getOption(options, 'resetInterval');
+    this._resetRepeat = getOption(options, 'resetRepeat');
 
-    this.accessToken = getOption(options, 'accessToken');
-    this.app = app;
-    this.name = (options[0].hasOwnProperty('name'))?options[0].name:options[0].port;
-    this.port = options[0].port;
-    this.positionAccuracy = getOption(options, 'positionAccuracy');
-    this.postUrl = getOption(options, 'postUrl');
-    this.resetInterval = getOption(options, 'resetInterval');
-    this.resetRepeat = getOption(options, 'resetRepeat');
+    this._udpSocket = createSocket('udp4');
 
-    this.dump();
+    this._udpSocket.on('message', (msg: any, rinfo: any) => {
+      this._app.debug(`Listener: position report received on port ${this._port}`);
 
-    this.udpSocket = createSocket('udp4');
-
-    this.udpSocket.on('message', (msg: any, rinfo: any) => {
-      this.app.debug(`Listener: position report received on port ${this.port}`);
-
-      if (this.timestamp != 0) {
-        if (((this.timestamp + (this.resetInterval * 60000)) < Date.now()) || (this.resetRepeat && this.positions && (this.positions.consecutiveRepeats() > this.resetRepeat))) {
+      if (this._timestamp != 0) {
+        if (((this._timestamp + (this._resetInterval * 60000)) < Date.now()) || (this._resetRepeat && this._positions && (this._positions.consecutiveRepeats() > this._resetRepeat))) {
           this.closeResource();
-          this.timestamp = 0;
+          this._timestamp = 0;
         }
       }
 
-      if (this.timestamp == 0) {
+      if (this._timestamp == 0) {
         this.openResource((new Date()).toISOString());
       }
 
-      this.timestamp = Date.now();
+      this._timestamp = Date.now();
       var ais: AisDecodeOptions = new AisDecode('' + msg);
-      if (this.positions) this.positions.append(new Position(ais.lat || 0, ais.lon || 0, this.positionAccuracy));
+      if (this._positions) this._positions.append(new Position(ais.lat || 0, ais.lon || 0, this._positionAccuracy));
     });
       
     /**
@@ -71,60 +70,48 @@ export class Listener {
     }
   }
 
-  dump() {
-    console.log(`>>>>>>>>>>>>>>>> ${JSON.stringify({
-      accessToken: this.accessToken,
-      name: this.name,
-      port: this.port,
-      positionAccuracy: this.positionAccuracy,
-      postUrl: this.postUrl,
-      resetInterval: this.resetInterval,
-      resetRepeat: this.resetRepeat
-    }, null, 2)}`);
-  }
+  name = () => { return(this._name); }
+  port = () => { return(this._port); }
 
   startListening() {
-    this.app.debug(`Listener: startListening: listening on port ${this.port}`);
-
-    this.udpSocket.bind(this.port);
+    this._app.debug(`Listener: startListening: listening on port ${this._port}`);
+    this._udpSocket.bind(this._port);
   }
 
   stopListening() {
-    this.app.debug(`Listener: stopListening:`);
-
-    this.udpSocket.close();
+    this._app.debug(`Listener: stopListening:`);
+    this._udpSocket.close();
     this.closeResource();
   }
 
-  openResource(name: string) {
-    this.app.debug(`Listener: openResource: starting new track "${name}"`);
-
-    this.resourceName = name;
-    this.positions = new Positions(this.app);
+  openResource(id: string) {
+    this._app.debug(`Listener: openResource: starting new track`);
+    this._resourceId = id;
+    this._positions = new Positions(this._app);
   }
 
   async closeResource() {
-    this.app.debug(`Listener: closeResource: saving resource: ${(this.positions)?this.positions.length():0} to ${this.resourceName}`);
+    this._app.debug(`Listener: closeResource: saving resource with ${(this._positions)?this._positions.length():0}`);
     
-    if ((this.positions) && (this.positions.length() > 1)) {
+    if ((this._positions) && (this._positions.length() > 1)) {
       const formData = new FormData();
-      const jsonData = { name: this.resourceName, feature: { type: "Feature", geometry: { type: "LineString", coordinates: [ this.positions.positions().map((p: Position) => { return([ p.longitude, p.latitude ]); }) ] }}};
+      const jsonData = { name: this._name, feature: { type: "Feature", geometry: { type: "LineString", coordinates: [ this._positions.positions().map((p: Position) => { return([ p.longitude, p.latitude ]); }) ] }}};
       const blob = new Blob([JSON.stringify(jsonData)], { type: 'application/json' });
 
       formData.append('file', blob, 'data.json');
 
       try {
-        const response = await axios.post(this.postUrl, formData, {
+        const response = await axios.post(this._postUrl, formData, {
           headers: {
             'Content-Type': 'multipart/form-data',
           },
         });
-        this.app.debug(`Listener: closeResource: response: ${response.data}`);
+        this._app.debug(`Listener: closeResource: response: ${response.data}`);
       } catch (error: any) {
-        this.app.debug(`Listener: closeResource: error: ${error.response?.data || error.message}`);
+        this._app.debug(`Listener: closeResource: error: ${error.response?.data || error.message}`);
       }
     } else {
-      this.app.debug(`Listener: closeResource: refusing to save an empty track`);
+      this._app.debug(`Listener: closeResource: refusing to save an empty track`);
     }
   }
 
