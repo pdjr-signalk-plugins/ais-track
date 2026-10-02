@@ -32,6 +32,8 @@ export class Listener {
     this.resetInterval = getOption(options, 'resetInterval');
     this.resetRepeat = getOption(options, 'resetRepeat');
 
+    
+
     this.udpSocket = createSocket('udp4');
 
     this.udpSocket.on('message', (msg: any, rinfo: any) => {
