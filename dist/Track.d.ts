@@ -9,5 +9,5 @@ export declare class Track {
     positions(): Position[];
     length(): number;
     consecutiveRepeats(): number;
-    append(position: Position): string;
+    append(position: Position, obj?: any): boolean;
 }

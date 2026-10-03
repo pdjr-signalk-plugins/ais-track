@@ -47,8 +47,9 @@ class Listener {
                 this._track = new Track_1.Track(this._timestamp, this._app);
             }
             var ais = new ggencoder_1.AisDecode('' + msg);
-            var result = this._track.append(new Position_1.Position(ais.lat || 0, ais.lon || 0, this._positionAccuracy));
-            this._app.debug(`Listener[${this._port}]: ${result}`);
+            var obj = { msg: undefined };
+            this._track.append(new Position_1.Position(ais.lat || 0, ais.lon || 0, this._positionAccuracy), obj);
+            this._app.debug(`Listener[${this._port}]: ${obj.msg}`);
         });
         /**
          *
