@@ -95,11 +95,11 @@ class Listener {
                 });
             }
             catch (error) {
-                this._app.debug(`Listener[${this._port}]: error posting "${this._name}" (${error.response?.data || error.message})`);
+                this._app.debug(`Listener[${this._port}]: error posting "${this._name}" (${JSON.stringify(error.response?.data || error.message)})`);
             }
         }
         else {
-            this._app.debug(`Listener[${this._port}]: refusing to save empty track "${this._name}"`);
+            this._app.debug(`Listener[${this._port}]: discarding empty track "${this._name}"`);
         }
     }
 }

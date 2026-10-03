@@ -18,10 +18,17 @@ incoming AIS position reports.
 
 Each listener builds a *current track* from received position reports
 by rounding latitude and longitude values to some user-configured
-resolution and saving the clean position.
-Consecutive identical repeat positions are discarded.
+resolution.
+Consecutive identical positions are discarded.
 
-When the position report stream dries up for a configured interval the
+and the plugin
+can be configured to save the current track and start a new one after
+receiving a specified number of consecutive repeat positions.
+
+Alternatively, the current track can be automatically saved when the
+position report stream dries up for a configured period of time.
+
+the
 current track is closed and sent using an HTTP POST API call to a
 specified Signal K compliant resource handler before the plugin returns
 to await further possible incoming AIS position reports.
