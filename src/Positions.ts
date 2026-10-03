@@ -24,11 +24,11 @@ export class Positions {
 
   append(position: Position) {
     if ((this._positions.length == 0) || !((this._positions[this._positions.length - 1].latitude == position.latitude) && (this._positions[this._positions.length - 1].longitude == position.longitude))) {
-      if (this._app) this._app.debug(`Positions: append: saving new position [ ${position.longitude}, ${position.latitude} ]`);
+      if (this._app) this._app.debug(`Positions: saving position #${this.length()} [ ${position.longitude}, ${position.latitude} ]`);
       this._positions.push(position);
       this._consecutiveRepeats = 0;
     } else {
-      if (this._app) this._app.debug(`Positions: append: discarding duplicate position`);
+      if (this._app) this._app.debug(`Positions: discarding duplicate position`);
       this._consecutiveRepeats++;
     }
   }
