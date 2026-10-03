@@ -42,7 +42,7 @@ class Listener {
                 }
             }
             this._timestamp = Date.now();
-            if (!this._track) {
+            if (this._track == undefined) {
                 this._app.debug(`Listener[${this._port}]: opening new track`);
                 this._track = new Track_1.Track(this._timestamp, this._app);
             }
