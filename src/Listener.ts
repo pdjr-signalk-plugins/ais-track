@@ -1,6 +1,6 @@
 import { Socket, createSocket } from 'dgram';
 import { AisDecode, AisDecodeOptions } from 'ggencoder';
-import { Positions } from './Positions';
+import { Track } from './Track';
 import { Position } from './Position';
 import axios, { AxiosError } from 'axios';
 
@@ -17,7 +17,7 @@ export class Listener {
 
   private _udpSocket: Socket;
   private _timestamp: number = 0;
-  private _positions: Positions | undefined = undefined;
+  private _track: Track | undefined = undefined;
   private _resourceId: string = '';
 
   constructor(options: any[], app: any) {
@@ -40,20 +40,21 @@ export class Listener {
     this._udpSocket.on('message', (msg: any, rinfo: any) => {
       this._app.debug(`Listener: message received on port ${this._port}`);
 
-      if (this._timestamp != 0) {
-        if (((this._timestamp + (this._resetInterval * 60000)) < Date.now()) || (this._resetRepeat && this._positions && (this._positions.consecutiveRepeats() > this._resetRepeat))) {
-          this.closeResource();
-          this._timestamp = 0;
+      if (this._track) {
+        if ((this._resetInterval && ((this._resetInterval * 60000) < Date.now())) || (this._resetRepeat && (this._track.consecutiveRepeats() > this._resetRepeat))) {
+          this.saveResource();
+          this._track = undefined;
         }
       }
 
-      if (this._timestamp == 0) {
-        this.openResource((new Date()).toISOString());
+      this._timestamp = Date.now();
+
+      if (!this._track) {
+        this._track = new Track(this._timestamp, this._app);
       }
 
-      this._timestamp = Date.now();
       var ais: AisDecodeOptions = new AisDecode('' + msg);
-      if (this._positions) this._positions.append(new Position(ais.lat || 0, ais.lon || 0, this._positionAccuracy));
+      this._track.append(new Position(ais.lat || 0, ais.lon || 0, this._positionAccuracy));
     });
       
     /**
@@ -76,28 +77,23 @@ export class Listener {
   getPort() { return(this._port); }
 
   startListening() {
-    this._app.debug(`Listener: starting to listening on port ${this._port}`);
+    this._app.debug(`Listener: started listening on port ${this._port}`);
     this._udpSocket.bind(this._port);
   }
 
   stopListening() {
-    this._app.debug(`Listener: stopping listening on port ${this._port}`);
+    this._app.debug(`Listener: stopped listening on port ${this._port}`);
     this._udpSocket.close();
-    this.closeResource();
+    this.saveResource();
+    this._track = undefined;
   }
 
-  openResource(id: string) {
-    this._app.debug(`Listener: creating a new track "${this._name}"`);
-    this._resourceId = id;
-    this._positions = new Positions(this._app);
-  }
-
-  async closeResource() {
-    this._app.debug(`Listener: saving resource with ${(this._positions)?this._positions.length():0}`);
+  async saveResource() {
+    this._app.debug(`Listener: saving resource`);
     
-    if ((this._positions) && (this._positions.length() > 1)) {
+    if ((this._track) && (this._track.length() > 1)) {
       const formData = new FormData();
-      const jsonData = { name: this._name, feature: { type: "Feature", geometry: { type: "LineString", coordinates: [ this._positions.positions().map((p: Position) => { return([ p.longitude, p.latitude ]); }) ] }}};
+      const jsonData = { name: this._name, feature: { type: "Feature", geometry: { type: "LineString", coordinates: [ this._track.positions().map((p: Position) => { return([ p.longitude, p.latitude ]); }) ] }}};
       const blob = new Blob([JSON.stringify(jsonData)], { type: 'application/json' });
 
       formData.append('file', blob, 'data.json');

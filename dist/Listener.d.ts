@@ -9,13 +9,12 @@ export declare class Listener {
     private _resetRepeat;
     private _udpSocket;
     private _timestamp;
-    private _positions;
+    private _track;
     private _resourceId;
     constructor(options: any[], app: any);
     getName(): string;
     getPort(): number;
     startListening(): void;
     stopListening(): void;
-    openResource(id: string): void;
-    closeResource(): Promise<void>;
+    saveResource(): Promise<void>;
 }

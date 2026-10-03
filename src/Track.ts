@@ -1,13 +1,19 @@
 import { Position } from './Position'
 
-export class Positions {
+export class Track {
 
+  private _timestamp: number = 0;
   private _app: any | undefined = undefined;
   private _positions: Position[] = [];
   private _consecutiveRepeats: number = 0;
 
-  constructor(app?: any) {
+  constructor(timestamp: number, app?: any) {
+    this._timestamp = timestamp;
     this._app = (app || undefined);
+  }
+
+  timestamp(): number {
+    return(this._timestamp)
   }
 
   positions(): Position[] {
@@ -24,7 +30,7 @@ export class Positions {
 
   append(position: Position) {
     if ((this._positions.length == 0) || !((this._positions[this._positions.length - 1].latitude == position.latitude) && (this._positions[this._positions.length - 1].longitude == position.longitude))) {
-      if (this._app) this._app.debug(`Positions: saving position #${this.length()} [ ${position.longitude}, ${position.latitude} ]`);
+      if (this._app) this._app.debug(`Positions: saving position #${this.length() + 1} [ ${position.longitude}, ${position.latitude} ]`);
       this._positions.push(position);
       this._consecutiveRepeats = 0;
     } else {

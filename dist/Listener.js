@@ -3,13 +3,13 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.Listener = void 0;
 const dgram_1 = require("dgram");
 const ggencoder_1 = require("ggencoder");
-const Positions_1 = require("./Positions");
+const Track_1 = require("./Track");
 const Position_1 = require("./Position");
 const axios_1 = require("axios");
 class Listener {
     constructor(options, app) {
         this._timestamp = 0;
-        this._positions = undefined;
+        this._track = undefined;
         this._resourceId = '';
         if (!options[0].hasOwnProperty('port'))
             throw new Error('missing \'port\' property');
@@ -27,19 +27,18 @@ class Listener {
         this._app.debug(`Listener: creating listener "${this._name}" on port ${this._port}`);
         this._udpSocket.on('message', (msg, rinfo) => {
             this._app.debug(`Listener: message received on port ${this._port}`);
-            if (this._timestamp != 0) {
-                if (((this._timestamp + (this._resetInterval * 60000)) < Date.now()) || (this._resetRepeat && this._positions && (this._positions.consecutiveRepeats() > this._resetRepeat))) {
-                    this.closeResource();
-                    this._timestamp = 0;
+            if (this._track) {
+                if ((this._resetInterval && ((this._resetInterval * 60000) < Date.now())) || (this._resetRepeat && (this._track.consecutiveRepeats() > this._resetRepeat))) {
+                    this.saveResource();
+                    this._track = undefined;
                 }
             }
-            if (this._timestamp == 0) {
-                this.openResource((new Date()).toISOString());
-            }
             this._timestamp = Date.now();
+            if (!this._track) {
+                this._track = new Track_1.Track(this._timestamp, this._app);
+            }
             var ais = new ggencoder_1.AisDecode('' + msg);
-            if (this._positions)
-                this._positions.append(new Position_1.Position(ais.lat || 0, ais.lon || 0, this._positionAccuracy));
+            this._track.append(new Position_1.Position(ais.lat || 0, ais.lon || 0, this._positionAccuracy));
         });
         /**
          *
@@ -60,24 +59,20 @@ class Listener {
     getName() { return (this._name); }
     getPort() { return (this._port); }
     startListening() {
-        this._app.debug(`Listener: starting to listening on port ${this._port}`);
+        this._app.debug(`Listener: started listening on port ${this._port}`);
         this._udpSocket.bind(this._port);
     }
     stopListening() {
-        this._app.debug(`Listener: stopping listening on port ${this._port}`);
+        this._app.debug(`Listener: stopped listening on port ${this._port}`);
         this._udpSocket.close();
-        this.closeResource();
+        this.saveResource();
+        this._track = undefined;
     }
-    openResource(id) {
-        this._app.debug(`Listener: creating a new track "${this._name}"`);
-        this._resourceId = id;
-        this._positions = new Positions_1.Positions(this._app);
-    }
-    async closeResource() {
-        this._app.debug(`Listener: saving resource with ${(this._positions) ? this._positions.length() : 0}`);
-        if ((this._positions) && (this._positions.length() > 1)) {
+    async saveResource() {
+        this._app.debug(`Listener: saving resource`);
+        if ((this._track) && (this._track.length() > 1)) {
             const formData = new FormData();
-            const jsonData = { name: this._name, feature: { type: "Feature", geometry: { type: "LineString", coordinates: [this._positions.positions().map((p) => { return ([p.longitude, p.latitude]); })] } } };
+            const jsonData = { name: this._name, feature: { type: "Feature", geometry: { type: "LineString", coordinates: [this._track.positions().map((p) => { return ([p.longitude, p.latitude]); })] } } };
             const blob = new Blob([JSON.stringify(jsonData)], { type: 'application/json' });
             formData.append('file', blob, 'data.json');
             try {
