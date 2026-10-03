@@ -28,7 +28,7 @@ class Listener {
         this._udpSocket.on('message', (msg, rinfo) => {
             this._app.debug(`Listener[${this._port}]: message received`);
             if (this._track) {
-                if (this._resetInterval && ((this._resetInterval * 60000) < Date.now())) {
+                if (this._resetInterval && ((this._timestamp + (this._resetInterval * 60000)) < Date.now())) {
                     this._app.debug(`Listener[${this._port}]: closing track because reset interval has been reached`);
                     this.saveTrack();
                     this._track = undefined;
