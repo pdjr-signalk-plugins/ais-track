@@ -57,11 +57,13 @@ export class Listener {
       this._timestamp = Date.now();
 
       if (!this._track) {
+        this._app.debug(`Listener[${this._port}]: opening new track`);
         this._track = new Track(this._timestamp, this._app);
       }
 
       var ais: AisDecodeOptions = new AisDecode('' + msg);
-      this._track.append(new Position(ais.lat || 0, ais.lon || 0, this._positionAccuracy));
+      var result: string = this._track.append(new Position(ais.lat || 0, ais.lon || 0, this._positionAccuracy));
+      this._app.debug(`Listener[${this._port}]: ${result}`);
     });
       
     /**
