@@ -40,13 +40,13 @@ export class Listener {
     this._udpSocket.on('message', (msg: any, rinfo: any) => {
       this._app.debug(`Listener[${this._port}]: message received`);
 
-      if (this._track && (this._resetInterval && ((this._resetInterval * 60000) < Date.now()))) {
+      if (this._track && this._resetInterval && ((this._resetInterval * 60000) < Date.now())) {
         this._app.debug(`Listener[${this._port}]: closing track because reset interval has been reached`);
         this.saveTrack();
         this._track = undefined;
       }
 
-      if (this._track && (this._resetRepeat && (this._track.consecutiveRepeats() > this._resetRepeat))) {
+      if (this._track && this._resetRepeat && (this._track.consecutiveRepeats() > this._resetRepeat)) {
         this._app.debug(`Listener[${this._port}]: closing track because reset repeat count has been reached`);
         this.saveTrack();
         this._track = undefined;
