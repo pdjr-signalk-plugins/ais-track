@@ -9,5 +9,5 @@ export declare class Track {
     positions(): Position[];
     length(): number;
     consecutiveRepeats(): number;
-    append(position: Position): void;
+    append(position: Position): string;
 }

@@ -24,15 +24,13 @@ class Track {
     }
     append(position) {
         if ((this._positions.length == 0) || !((this._positions[this._positions.length - 1].latitude == position.latitude) && (this._positions[this._positions.length - 1].longitude == position.longitude))) {
-            if (this._app)
-                this._app.debug(`Positions: saving position #${this.length() + 1} [ ${position.longitude}, ${position.latitude} ]`);
             this._positions.push(position);
             this._consecutiveRepeats = 0;
+            return (`saving position #${this.length() + 1} [ ${position.longitude}, ${position.latitude} ]`);
         }
         else {
-            if (this._app)
-                this._app.debug(`Positions: discarding duplicate position`);
             this._consecutiveRepeats++;
+            return (`discarding duplicate position`);
         }
     }
 }
