@@ -9,5 +9,7 @@ export declare class Track {
     positions(): Position[];
     length(): number;
     consecutiveRepeats(): number;
-    append(position: Position, obj?: any): boolean;
+    append(position: Position, obj?: {
+        msg: string | undefined;
+    }): boolean;
 }

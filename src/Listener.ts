@@ -62,7 +62,7 @@ export class Listener {
       }
 
       var ais: AisDecodeOptions = new AisDecode('' + msg);
-      var obj: any = { msg: undefined };
+      var obj = { msg: undefined };
       this._track.append(new Position(ais.lat || 0, ais.lon || 0, this._positionAccuracy), obj);
       this._app.debug(`Listener[${this._port}]: ${obj.msg}`);
     });
