@@ -16,5 +16,5 @@ export declare class Listener {
     getPort(): number;
     startListening(): void;
     stopListening(): void;
-    saveResource(): Promise<void>;
+    saveTrack(): Promise<void>;
 }

@@ -24,14 +24,18 @@ class Listener {
         this._resetInterval = getOption(options, 'resetInterval');
         this._resetRepeat = getOption(options, 'resetRepeat');
         this._udpSocket = (0, dgram_1.createSocket)('udp4');
-        this._app.debug(`Listener: creating listener "${this._name}" on port ${this._port}`);
+        this._app.debug(`Listener[${this._port}]: creating listener "${this._name}"`);
         this._udpSocket.on('message', (msg, rinfo) => {
-            this._app.debug(`Listener: message received on port ${this._port}`);
-            if (this._track) {
-                if ((this._resetInterval && ((this._resetInterval * 60000) < Date.now())) || (this._resetRepeat && (this._track.consecutiveRepeats() > this._resetRepeat))) {
-                    this.saveResource();
-                    this._track = undefined;
-                }
+            this._app.debug(`Listener[${this._port}]: message received`);
+            if (this._track && (this._resetInterval && ((this._resetInterval * 60000) < Date.now()))) {
+                this._app.debug(`Listener[${this._port}]: closing track because reset interval has been reached`);
+                this.saveTrack();
+                this._track = undefined;
+            }
+            if (this._track && (this._resetRepeat && (this._track.consecutiveRepeats() > this._resetRepeat))) {
+                this._app.debug(`Listener[${this._port}]: closing track because reset repeat count has been reached`);
+                this.saveTrack();
+                this._track = undefined;
             }
             this._timestamp = Date.now();
             if (!this._track) {
@@ -59,24 +63,24 @@ class Listener {
     getName() { return (this._name); }
     getPort() { return (this._port); }
     startListening() {
-        this._app.debug(`Listener: started listening on port ${this._port}`);
+        this._app.debug(`Listener[${this._port}]: started listening`);
         this._udpSocket.bind(this._port);
     }
     stopListening() {
-        this._app.debug(`Listener: stopped listening on port ${this._port}`);
+        this._app.debug(`Listener[${this._port}]: stopped listening`);
         this._udpSocket.close();
-        this.saveResource();
+        this.saveTrack();
         this._track = undefined;
     }
-    async saveResource() {
-        this._app.debug(`Listener: saving resource`);
+    async saveTrack() {
+        this._app.debug(`Listener[${this._port}]: saving track to "${this._postUrl}"`);
         if ((this._track) && (this._track.length() > 1)) {
             const formData = new FormData();
             const jsonData = { name: this._name, feature: { type: "Feature", geometry: { type: "LineString", coordinates: [this._track.positions().map((p) => { return ([p.longitude, p.latitude]); })] } } };
             const blob = new Blob([JSON.stringify(jsonData)], { type: 'application/json' });
             formData.append('file', blob, 'data.json');
             try {
-                this._app.debug(`Listener: posting track "${this._name}" to "${this._postUrl}"`);
+                this._app.debug(`Listener[${this._port}]: posting track "${this._name}" to "${this._postUrl}"`);
                 const response = await axios_1.default.post(this._postUrl, formData, {
                     headers: {
                         'Content-Type': 'multipart/form-data',
@@ -84,11 +88,11 @@ class Listener {
                 });
             }
             catch (error) {
-                this._app.debug(`Listener: error posting "${this._name}" (${error.response?.data || error.message})`);
+                this._app.debug(`Listener[${this._port}]: error posting "${this._name}" (${error.response?.data || error.message})`);
             }
         }
         else {
-            this._app.debug(`Listener: refusing to save empty track "${this._name}"`);
+            this._app.debug(`Listener[${this._port}]: refusing to save empty track "${this._name}"`);
         }
     }
 }
